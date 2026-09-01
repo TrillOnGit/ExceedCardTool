@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: ShaXizor;
+  src: url("SHAXIZOR-fixed.ttf");
+}
+
+@font-face {
+    font-family: MKXTitle;
+    src: url("MKX Title.ttf");
+}
