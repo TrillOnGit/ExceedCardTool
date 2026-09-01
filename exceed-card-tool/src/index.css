@@ -9,3 +9,8 @@
     font-family: MKXTitle;
     src: url("MKX Title.ttf");
 }
+
+@font-face {
+    font-family: AlgrySansMed;
+    src: url("alegreya-sans/AlegreyaSans-Medium.otf");
+}
