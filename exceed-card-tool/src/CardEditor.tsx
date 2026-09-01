@@ -6,6 +6,10 @@ export interface Card {
   armor?: number;
   guard?: number;
   actionText: string;
+  isContinuousBoost: boolean;
+  boostName: string;
+  boostText: string;
+  boostForceCost: number;
 }
 
 export const defaultCard: Card = {
@@ -16,6 +20,10 @@ export const defaultCard: Card = {
   armor: 0,
   guard: 0,
   actionText: "",
+  isContinuousBoost: false,
+  boostName: "",
+  boostText: "",
+  boostForceCost: 0,
 };
 
 export interface CardEditorProps {
@@ -134,6 +142,53 @@ export function CardEditor(props: CardEditorProps) {
             value={props.card.actionText}
             onChange={(e) =>
               props.onChange({ ...props.card, actionText: e.target.value })
+            }
+          />
+        </div>
+      </div>
+      <div>
+        Continuous Boost:
+        <input
+          type="checkbox"
+          className="bg-gray-100 m-1"
+          onChange={(e) =>
+            props.onChange({
+              ...props.card,
+              isContinuousBoost: e.target.checked,
+            })
+          }
+        ></input>
+        Boost Force Cost:
+        <input
+          type="number"
+          className="bg-gray-100 w-10 m-1"
+          value={props.card.boostForceCost}
+          onChange={(e) =>
+            props.onChange({
+              ...props.card,
+              boostForceCost: Math.max(0, Math.min(9, e.target.valueAsNumber)),
+            })
+          }
+        />
+      </div>
+      <div>
+        Boost Name:
+        <input
+          className="bg-gray-100 m-1"
+          value={props.card.boostName}
+          onChange={(e) =>
+            props.onChange({ ...props.card, boostName: e.target.value })
+          }
+        />
+      </div>
+      <div>
+        Boost Text:
+        <div>
+          <textarea
+            className="bg-gray-100 m-1 h-30 w-100 resize-none"
+            value={props.card.boostText}
+            onChange={(e) =>
+              props.onChange({ ...props.card, boostText: e.target.value })
             }
           />
         </div>
