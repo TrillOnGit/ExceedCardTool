@@ -12,9 +12,9 @@ export const defaultCard: Card = {
   name: "New Card",
   range: [undefined, undefined],
   power: undefined,
-  speed: undefined,
-  armor: undefined,
-  guard: undefined,
+  speed: 0,
+  armor: 0,
+  guard: 0,
   actionText: "",
 };
 
@@ -25,7 +25,7 @@ export interface CardEditorProps {
 
 export function CardEditor(props: CardEditorProps) {
   return (
-    <>
+    <div>
       <div>Card Editor</div>
 
       <div>
@@ -138,6 +138,6 @@ export function CardEditor(props: CardEditorProps) {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

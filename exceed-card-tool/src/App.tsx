@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AltToDoList } from "./AltToDoList";
 import { CardEditor, defaultCard } from "./CardEditor";
 import { ToDoList } from "./ToDoList";
+import { CardPreview } from "./CardPreview";
 
 function App() {
   const [card, setCard] = useState(defaultCard);
@@ -9,7 +10,10 @@ function App() {
     <>
       {/* <ToDoList /> */}
       {/* <AltToDoList /> */}
-      <CardEditor card={card} onChange={setCard} />
+      <div className="flex">
+        <CardEditor card={card} onChange={setCard} />
+        <CardPreview card={card} />
+      </div>
     </>
   );
 }
