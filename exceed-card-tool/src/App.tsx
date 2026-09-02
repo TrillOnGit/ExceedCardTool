@@ -6,10 +6,10 @@ import { CardPreview } from "./CardPreview";
 
 function App() {
   const [card, setCard] = useState(defaultCard);
+  const [uploadImage, setUploadImage] = useState<HTMLImageElement | null>(null);
+
   return (
     <>
-      {/* <ToDoList /> */}
-      {/* <AltToDoList /> */}
       <div className="flex">
         <CardEditor card={card} onChange={setCard} />
         <CardPreview card={card} />

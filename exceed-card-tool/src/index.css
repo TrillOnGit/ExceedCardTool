@@ -14,3 +14,13 @@
     font-family: AlgrySansMed;
     src: url("alegreya-sans/AlegreyaSans-Medium.otf");
 }
+
+@font-face {
+    font-family: AlgrySansBold;
+    src: url("/alegreya-sans/AlegreyaSans-Bold.otf")
+}
+
+@font-face {
+    font-family: AlgrySansItalic;
+    src: url("alegreya-sans/AlegreyaSans-Italic.otf")
+}

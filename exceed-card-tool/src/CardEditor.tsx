@@ -1,5 +1,8 @@
+import { useState } from "react";
+
 export interface Card {
   name: string;
+  forceCost: number;
   range: [number | undefined, number | undefined];
   power?: number;
   speed?: number;
@@ -10,10 +13,13 @@ export interface Card {
   boostName: string;
   boostText: string;
   boostForceCost: number;
+  cardImage?: string;
+  cardIcon?: string;
 }
 
 export const defaultCard: Card = {
   name: "New Card",
+  forceCost: 0,
   range: [undefined, undefined],
   power: undefined,
   speed: 0,
@@ -24,6 +30,8 @@ export const defaultCard: Card = {
   boostName: "",
   boostText: "",
   boostForceCost: 0,
+  cardImage: undefined,
+  cardIcon: "/assets/blankicon.png",
 };
 
 export interface CardEditorProps {
@@ -32,6 +40,33 @@ export interface CardEditorProps {
 }
 
 export function CardEditor(props: CardEditorProps) {
+  // Handler that sets the uploaded card image
+  const handleCardImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        props.onChange({ ...props.card, cardImage: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleIconImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        props.onChange({ ...props.card, cardIcon: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div>
       <div>Card Editor</div>
@@ -43,6 +78,18 @@ export function CardEditor(props: CardEditorProps) {
           value={props.card.name}
           onChange={(e) =>
             props.onChange({ ...props.card, name: e.target.value })
+          }
+        />
+        Force Cost:
+        <input
+          type="number"
+          className="bg-gray-100 w-10 m-1"
+          value={props.card.forceCost}
+          onChange={(e) =>
+            props.onChange({
+              ...props.card,
+              forceCost: Math.max(0, Math.min(9, e.target.valueAsNumber)),
+            })
           }
         />
       </div>
@@ -192,6 +239,25 @@ export function CardEditor(props: CardEditorProps) {
             }
           />
         </div>
+      </div>
+      <div>
+        {/* 550x500 is the image window size */}
+        Card Image:
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleCardImageUpload}
+          className="block text-sm text-gray-600 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-gray-200 file:text-black"
+        />
+      </div>
+      <div>
+        Card Icon:
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleIconImageUpload}
+          className="block text-sm text-gray-600 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-gray-200 file:text-black"
+        />
       </div>
     </div>
   );

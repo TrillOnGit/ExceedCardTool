@@ -4,10 +4,13 @@ import frameSrc from "./assets/trueemptycard.png";
 import armPatchSrc from "./assets/armorpatch.png";
 import grdPatchSrc from "./assets/guardpatch.png";
 import contBoostIconSrc from "./assets/contboosticon.png";
+import forceIconSrc from "./assets/forceicon.png";
 
 const nameFont = "56px ShaXizor";
 const statFont = "72px MKXTitle";
 const textFont = "32px AlgrySansMed";
+const boldTextFont = "32px AlgrySansBold";
+const italicTextFont = "32px AlgrySansItalic";
 const boostNameFont = "28px ShaXizor";
 
 interface CardPreviewProps {
@@ -19,6 +22,9 @@ export function CardPreview({ card }: CardPreviewProps) {
   const armPatch = useImage(armPatchSrc);
   const grdPatch = useImage(grdPatchSrc);
   const contBoostIcon = useImage(contBoostIconSrc);
+  const forceIcon = useImage(forceIconSrc);
+  const cardImage = useImage(card.cardImage);
+  const cardIcon = useImage(card.cardIcon);
 
   useEffect(() => {
     const cardCanvas = document.getElementById(
@@ -32,6 +38,33 @@ export function CardPreview({ card }: CardPreviewProps) {
 
     ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
 
+    // Draw imported image
+    if (cardImage) {
+      const targetWidth = 536;
+
+      const scale = targetWidth / cardImage.width;
+      const targetHeight = cardImage.height * scale;
+
+      ctx.drawImage(cardImage, 146, 100, targetWidth, targetHeight);
+    }
+
+    // Draw imported image (or default) for the top right icon
+    if (cardIcon) {
+      const targetWidth = 92;
+      const scale = targetWidth / cardIcon.width;
+      const targetHeight = cardIcon.height * scale;
+
+      //ctx.drawImage(cardIcon, 629, 31, targetWidth, targetHeight);
+      drawIconClippedToCircle(
+        ctx,
+        cardIcon,
+        626,
+        30,
+        targetWidth,
+        targetHeight,
+      );
+    }
+
     // Draw the Frame
     ctx.drawImage(frame, 0, 0);
 
@@ -44,6 +77,9 @@ export function CardPreview({ card }: CardPreviewProps) {
     }
     if (contBoostIcon && card.isContinuousBoost) {
       ctx.drawImage(contBoostIcon, 12, 809);
+    }
+    if (forceIcon && card.forceCost > 0) {
+      ctx.drawImage(forceIcon, 4, 8);
     }
 
     // Draw the Name Text
@@ -64,12 +100,13 @@ export function CardPreview({ card }: CardPreviewProps) {
     ctx.fillText(`${defStatToText(card.guard)}`, 100, 614);
 
     // Draw the Force Cost Text
+    ctx.fillText(`${defStatToText(card.forceCost)}`, 41, 83);
     ctx.fillText(`${spdOrCostToText(card.boostForceCost)}`, 70, 959);
 
     // Draw the Action Text
     ctx.letterSpacing = "0px";
     ctx.font = textFont;
-    drawStackedLines(ctx, card.actionText, 375, 737, 5);
+    drawRichText(ctx, card.actionText, 375, 737, 5, 500);
 
     // Draw the Boost Name
     ctx.textAlign = "left";
@@ -83,8 +120,17 @@ export function CardPreview({ card }: CardPreviewProps) {
     ctx.letterSpacing = "0px";
     ctx.font = textFont;
     ctx.fillStyle = "#000000";
-    drawStackedLines(ctx, card.boostText, 395, 928, 3);
-  }, [card, frame]);
+    drawRichText(ctx, card.boostText, 395, 928, 3, 550);
+  }, [
+    card,
+    frame,
+    cardImage,
+    cardIcon,
+    armPatch,
+    grdPatch,
+    contBoostIcon,
+    forceIcon,
+  ]);
 
   return (
     <canvas
@@ -122,60 +168,99 @@ const spdOrCostToText = (spdOrCost: number | undefined) => {
   return Number.isInteger(spdOrCost) ? `${spdOrCost}` : "0";
 };
 
-const drawStackedLines = (
+const drawIconClippedToCircle = (
   ctx: CanvasRenderingContext2D,
-  text: string,
+  image: HTMLImageElement,
   x: number,
   y: number,
-  maximumLineCount: number,
+  tw: number,
+  th: number,
 ) => {
-  const lines = wrapTextLines(ctx, text, maximumLineCount);
-
-  const lineHeight = 35;
-  for (let i = 0; i < lines.length; i++) {
-    const offset = (i - (lines.length - 1) / 2) * lineHeight;
-    ctx.fillText(lines[i], x, y + offset);
-  }
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, 100, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.drawImage(image, x, y, tw, th);
+  ctx.restore();
 };
 
-// Returns lines of text that are split so that they do not exceed the text box width,
-// dropping text that exceeds the maximum number of lines.
-const wrapTextLines = (
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maximumLineCount: number,
-) => {
-  const textBoxWidth = 550;
-  const maxLines = maximumLineCount;
-  const words = text.split(" ");
-  const lines: string[] = [];
+// const drawStackedLines = (
+//   ctx: CanvasRenderingContext2D,
+//   text: string,
+//   x: number,
+//   y: number,
+//   maximumLineCount: number,
+//   textBoxWidth: number,
+// ) => {
+//   const lines = wrapTextLines(ctx, text, maximumLineCount, textBoxWidth);
 
-  if (ctx.measureText(text).width < textBoxWidth) {
-    lines.push(text);
-    return lines;
-  }
+//   let isBolding = false;
+//   const lineHeight = 35;
+//   for (let i = 0; i < lines.length; i++) {
+//     const offset = (i - (lines.length - 1) / 2) * lineHeight;
+//     isBolding = drawRichText(ctx, lines[i], x, y + offset, isBolding);
+//   }
+// };
 
-  let currentLine = "";
+// Takes a line of text and wraps it into multiple lines.
+// const wrapLine = (
+//   ctx: CanvasRenderingContext2D,
+//   text: string,
+//   textBoxWidth: number,
+// ) => {
+//   const words = text.split(" ");
+//   const lines: string[] = [];
 
-  for (const word of words) {
-    const candidateLine = currentLine ? `${currentLine} ${word}` : word;
+//   if (ctx.measureText(text).width < textBoxWidth) {
+//     lines.push(text);
+//     return lines;
+//   }
 
-    if (ctx.measureText(candidateLine).width < textBoxWidth) {
-      currentLine = candidateLine;
-    } else {
-      lines.push(currentLine);
-      currentLine = word;
-    }
+//   let currentLine = "";
 
-    if (lines.length === maxLines) break;
-  }
+//   for (const word of words) {
+//     const candidateLine = currentLine ? `${currentLine} ${word}` : word;
 
-  if (lines.length < maxLines && currentLine) {
-    lines.push(currentLine);
-  }
+//     if (ctx.measureText(candidateLine).width < textBoxWidth) {
+//       currentLine = candidateLine;
+//     } else {
+//       lines.push(currentLine);
+//       currentLine = word;
+//     }
+//   }
 
-  return lines;
-};
+//   lines.push(currentLine);
+
+//   return lines;
+// };
+
+// Takes an array of lines and returns an array of wrapped lines.
+// const wrapLines = (
+//   ctx: CanvasRenderingContext2D,
+//   text: string[],
+//   textBoxWidth: number,
+// ) => {
+//   let wrappedLines: string[] = [];
+//   for (let i = 0; i < text.length; i++) {
+//     const line = text[i];
+//     wrappedLines.push(...wrapLine(ctx, line, textBoxWidth));
+//   }
+
+//   return wrappedLines;
+// };
+
+// Takes text and returns an array of lines that is split based on
+// length and if there is a new line character.
+// const wrapTextLines = (
+//   ctx: CanvasRenderingContext2D,
+//   text: string,
+//   maximumLineCount: number,
+//   textBoxWidth: number,
+// ) => {
+//   const lines = text.split("\n");
+
+//   return wrapLines(ctx, lines, textBoxWidth).slice(0, maximumLineCount);
+// };
 
 const useImage = (src: string) => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
@@ -187,4 +272,213 @@ const useImage = (src: string) => {
   }, [src]);
 
   return image;
+};
+
+// A piece of rich text with a uniform style
+interface Fragment {
+  // A font representing the style
+  font: string;
+  // The text
+  content: string;
+}
+
+// Take a string of text with bbcode-esque formatting, e.g. "hello [b]bold world[/b]", and split it inito
+// rich text fragments
+const parseFragments = (text: string): Fragment[] => {
+  return text.split(/(\[[bi]\].*?\[\/[bi]\])/).map((split) => {
+    if (split.startsWith("[b]")) {
+      return { font: boldTextFont, content: split.slice(3, -4) };
+    }
+    if (split.startsWith("[i]")) {
+      return { font: italicTextFont, content: split.slice(3, -4) };
+    }
+    return { font: textFont, content: split };
+  });
+};
+
+// const parseFragments = (text: string): Fragment[] => {
+//   // For now, we can kinda cheat by only supporting bold (via *) and just
+//   // alternating bold or not bold whenever we see a *
+//   let isBold = false;
+//   const fragments = [];
+//   for (const content of text.split("*")) {
+//     fragments.push({ font: isBold ? boldTextFont : textFont, content });
+//     isBold = !isBold;
+//   }
+//   return fragments;
+// };
+
+// Take a fragment of text and split it on `splitter` into several fragments,
+// each with the same style as the original one
+const splitFragment = (fragment: Fragment, splitter: string): Fragment[] =>
+  fragment.content
+    .split(splitter)
+    .map((s) => ({ font: fragment.font, content: s }));
+
+// Take a list of fragments and split it into multiple fragment lists,
+// where any fragments containing `splitter` are separated into multiple fragments
+const splitFragments = (
+  fragments: Fragment[],
+  splitter: string,
+): Fragment[][] => {
+  const outputFragmentSets = [];
+
+  let currentFragmentSet = [];
+  for (const fragment of fragments) {
+    const [firstSplit, ...restSplits] = splitFragment(fragment, splitter);
+
+    // The first split goes into the current fragment list,
+    // any subsequent splits get their own list
+    currentFragmentSet.push(firstSplit);
+    for (const split of restSplits) {
+      outputFragmentSets.push(currentFragmentSet);
+      currentFragmentSet = [split];
+    }
+  }
+
+  // Any leftover fragments go in
+  outputFragmentSets.push(currentFragmentSet);
+
+  return outputFragmentSets;
+};
+
+const wrapFragmentLine = (
+  ctx: CanvasRenderingContext2D,
+  line: Fragment[],
+  textBoxWidth: number,
+): Fragment[][] => {
+  const words = splitFragments(line, " ");
+  const lines: Fragment[][] = [];
+
+  if (getFragmentLineWidth(ctx, line) < textBoxWidth) {
+    lines.push(line);
+    return lines;
+  }
+
+  let currentLine = [];
+
+  for (const word of words) {
+    // Build a new candidate line by sticking a space on the end of the current
+    // line, and then appending the next word
+
+    // First, stick the space onto the last fragment
+    const candidateLinePrefix = [...currentLine];
+    if (candidateLinePrefix.length > 0) {
+      const lastFragment = candidateLinePrefix[candidateLinePrefix.length - 1];
+      candidateLinePrefix[candidateLinePrefix.length - 1] = {
+        ...lastFragment,
+        content: `${lastFragment.content} `,
+      };
+    }
+    // Now add the new word and merge it into the existing fragments if possible
+    const candidateLine = collapseFragments([...candidateLinePrefix, ...word]);
+
+    if (getFragmentLineWidth(ctx, candidateLine) < textBoxWidth) {
+      currentLine = candidateLine;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+
+  lines.push(currentLine);
+
+  return lines;
+};
+
+// Merge fragments that have the same style together
+const collapseFragments = (fragments: Fragment[]): Fragment[] => {
+  const outputFragments: Fragment[] = [];
+  for (const fragment of fragments) {
+    if (
+      outputFragments.length == 0 ||
+      outputFragments[outputFragments.length - 1].font != fragment.font
+    ) {
+      outputFragments.push(fragment);
+    } else {
+      outputFragments[outputFragments.length - 1] = {
+        font: fragment.font,
+        content: `${outputFragments[outputFragments.length - 1].content}${fragment.content}`,
+      };
+    }
+  }
+  return outputFragments;
+};
+
+const measureFragment = (ctx: CanvasRenderingContext2D, fragment: Fragment) => {
+  ctx.font = fragment.font;
+  return ctx.measureText(fragment.content);
+};
+
+const getFragmentLineWidth = (
+  ctx: CanvasRenderingContext2D,
+  line: Fragment[],
+) => line.map((f) => measureFragment(ctx, f).width).reduce((a, b) => a + b);
+
+const drawFragment = (
+  ctx: CanvasRenderingContext2D,
+  fragment: Fragment,
+  leftX: number,
+  y: number,
+) => {
+  ctx.font = fragment.font;
+  ctx.textAlign = "left";
+  ctx.fillText(fragment.content, leftX, y);
+};
+
+const drawFragmentLine = (
+  ctx: CanvasRenderingContext2D,
+  line: Fragment[],
+  x: number,
+  y: number,
+) => {
+  const totalWidth = line
+    .map((f) => measureFragment(ctx, f).width)
+    .reduce((a, b) => a + b);
+
+  let cursorX = x - totalWidth / 2;
+  for (const fragment of line) {
+    const width = measureFragment(ctx, fragment).width;
+    drawFragment(ctx, fragment, cursorX, y);
+    cursorX += width;
+  }
+};
+
+// Takes an array of lines and draws them on a canvas, centered on (x,y)
+// Each line is an array of fragments
+const drawFragmentLines = (
+  ctx: CanvasRenderingContext2D,
+  lines: Fragment[][],
+  x: number,
+  y: number,
+  lineHeight: number,
+) => {
+  const totalHeight = lines.length * lineHeight;
+  const startY = y - totalHeight / 2 + lineHeight / 2;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    drawFragmentLine(ctx, line, x, startY + i * lineHeight);
+  }
+};
+
+const drawRichText = (
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maximumLineCount: number,
+  textBoxWidth: number,
+) => {
+  const parsedFragments = parseFragments(text);
+  const fragmentLines = splitFragments(parsedFragments, "\n");
+  const wrappedFragmentLines = fragmentLines.flatMap((l) =>
+    wrapFragmentLine(ctx, l, textBoxWidth),
+  );
+  drawFragmentLines(
+    ctx,
+    wrappedFragmentLines.slice(0, maximumLineCount),
+    x,
+    y,
+    35,
+  );
 };
