@@ -53,6 +53,7 @@ export function CardPreview({ card }: CardPreviewProps) {
       const targetWidth = 92;
       const scale = targetWidth / cardIcon.width;
       const targetHeight = cardIcon.height * scale;
+      console.log(card.cardIcon);
 
       //ctx.drawImage(cardIcon, 629, 31, targetWidth, targetHeight);
       drawIconClippedToCircle(
@@ -184,84 +185,6 @@ const drawIconClippedToCircle = (
   ctx.restore();
 };
 
-// const drawStackedLines = (
-//   ctx: CanvasRenderingContext2D,
-//   text: string,
-//   x: number,
-//   y: number,
-//   maximumLineCount: number,
-//   textBoxWidth: number,
-// ) => {
-//   const lines = wrapTextLines(ctx, text, maximumLineCount, textBoxWidth);
-
-//   let isBolding = false;
-//   const lineHeight = 35;
-//   for (let i = 0; i < lines.length; i++) {
-//     const offset = (i - (lines.length - 1) / 2) * lineHeight;
-//     isBolding = drawRichText(ctx, lines[i], x, y + offset, isBolding);
-//   }
-// };
-
-// Takes a line of text and wraps it into multiple lines.
-// const wrapLine = (
-//   ctx: CanvasRenderingContext2D,
-//   text: string,
-//   textBoxWidth: number,
-// ) => {
-//   const words = text.split(" ");
-//   const lines: string[] = [];
-
-//   if (ctx.measureText(text).width < textBoxWidth) {
-//     lines.push(text);
-//     return lines;
-//   }
-
-//   let currentLine = "";
-
-//   for (const word of words) {
-//     const candidateLine = currentLine ? `${currentLine} ${word}` : word;
-
-//     if (ctx.measureText(candidateLine).width < textBoxWidth) {
-//       currentLine = candidateLine;
-//     } else {
-//       lines.push(currentLine);
-//       currentLine = word;
-//     }
-//   }
-
-//   lines.push(currentLine);
-
-//   return lines;
-// };
-
-// Takes an array of lines and returns an array of wrapped lines.
-// const wrapLines = (
-//   ctx: CanvasRenderingContext2D,
-//   text: string[],
-//   textBoxWidth: number,
-// ) => {
-//   let wrappedLines: string[] = [];
-//   for (let i = 0; i < text.length; i++) {
-//     const line = text[i];
-//     wrappedLines.push(...wrapLine(ctx, line, textBoxWidth));
-//   }
-
-//   return wrappedLines;
-// };
-
-// Takes text and returns an array of lines that is split based on
-// length and if there is a new line character.
-// const wrapTextLines = (
-//   ctx: CanvasRenderingContext2D,
-//   text: string,
-//   maximumLineCount: number,
-//   textBoxWidth: number,
-// ) => {
-//   const lines = text.split("\n");
-
-//   return wrapLines(ctx, lines, textBoxWidth).slice(0, maximumLineCount);
-// };
-
 const useImage = (src: string) => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
@@ -280,40 +203,42 @@ interface Fragment {
   font: string;
   // The text
   content: string;
+  // The color
+  color: string;
 }
 
 // Take a string of text with bbcode-esque formatting, e.g. "hello [b]bold world[/b]", and split it inito
 // rich text fragments
 const parseFragments = (text: string): Fragment[] => {
-  return text.split(/(\[[bi]\].*?\[\/[bi]\])/).map((split) => {
+  return text.split(/(\[[birgyup]\].*?\[\/[birgyup]\])/).map((split) => {
+    let curFont = textFont;
+    let curColor = "#000000";
     if (split.startsWith("[b]")) {
-      return { font: boldTextFont, content: split.slice(3, -4) };
+      curFont = boldTextFont;
+      console.log("bold hit");
+    } else if (split.startsWith("[i]")) {
+      curFont = italicTextFont;
+    } else if (split.startsWith("[r]")) {
+      curColor = "#b80000";
+    } else if (split.startsWith("[g]")) {
+      curColor = "#127a00";
+    } else if (split.startsWith("[y]")) {
+      curColor = "#877400";
+    } else if (split.startsWith("[p]")) {
+      curColor = "#7d2e81";
+    } else if (split.startsWith("[u]")) {
+      curColor = "#0069ff";
+    } else {
+      return { font: textFont, content: split, color: curColor };
     }
-    if (split.startsWith("[i]")) {
-      return { font: italicTextFont, content: split.slice(3, -4) };
-    }
-    return { font: textFont, content: split };
+    return { font: curFont, content: split.slice(3, -4), color: curColor };
   });
 };
-
-// const parseFragments = (text: string): Fragment[] => {
-//   // For now, we can kinda cheat by only supporting bold (via *) and just
-//   // alternating bold or not bold whenever we see a *
-//   let isBold = false;
-//   const fragments = [];
-//   for (const content of text.split("*")) {
-//     fragments.push({ font: isBold ? boldTextFont : textFont, content });
-//     isBold = !isBold;
-//   }
-//   return fragments;
-// };
 
 // Take a fragment of text and split it on `splitter` into several fragments,
 // each with the same style as the original one
 const splitFragment = (fragment: Fragment, splitter: string): Fragment[] =>
-  fragment.content
-    .split(splitter)
-    .map((s) => ({ font: fragment.font, content: s }));
+  fragment.content.split(splitter).map((s) => ({ ...fragment, content: s }));
 
 // Take a list of fragments and split it into multiple fragment lists,
 // where any fragments containing `splitter` are separated into multiple fragments
@@ -392,12 +317,13 @@ const collapseFragments = (fragments: Fragment[]): Fragment[] => {
   for (const fragment of fragments) {
     if (
       outputFragments.length == 0 ||
-      outputFragments[outputFragments.length - 1].font != fragment.font
+      outputFragments[outputFragments.length - 1].font != fragment.font ||
+      outputFragments[outputFragments.length - 1].color != fragment.color
     ) {
       outputFragments.push(fragment);
     } else {
       outputFragments[outputFragments.length - 1] = {
-        font: fragment.font,
+        ...fragment,
         content: `${outputFragments[outputFragments.length - 1].content}${fragment.content}`,
       };
     }
@@ -423,6 +349,7 @@ const drawFragment = (
 ) => {
   ctx.font = fragment.font;
   ctx.textAlign = "left";
+  ctx.fillStyle = fragment.color;
   ctx.fillText(fragment.content, leftX, y);
 };
 

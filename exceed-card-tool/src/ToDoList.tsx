@@ -38,7 +38,7 @@ export function ToDoList() {
   };
 
   const removeEntry = (index: number) => {
-    setEntries(entries.filter((entry, i) => (i == index ? false : true)));
+    setEntries(entries.filter((_, i) => (i == index ? false : true)));
   };
 
   return (

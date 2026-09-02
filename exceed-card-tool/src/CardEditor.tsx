@@ -1,4 +1,4 @@
-import { useState } from "react";
+import blankIcon from "./assets/blankicon.png";
 
 export interface Card {
   name: string;
@@ -9,6 +9,7 @@ export interface Card {
   armor?: number;
   guard?: number;
   actionText: string;
+  flavorText: string;
   isContinuousBoost: boolean;
   boostName: string;
   boostText: string;
@@ -26,12 +27,13 @@ export const defaultCard: Card = {
   armor: 0,
   guard: 0,
   actionText: "",
+  flavorText: "",
   isContinuousBoost: false,
   boostName: "",
   boostText: "",
   boostForceCost: 0,
   cardImage: undefined,
-  cardIcon: "/assets/blankicon.png",
+  cardIcon: blankIcon,
 };
 
 export interface CardEditorProps {
@@ -192,6 +194,16 @@ export function CardEditor(props: CardEditorProps) {
             }
           />
         </div>
+      </div>
+      <div>
+        Flavor Text:
+        <input
+          className="bg-gray-100 m-1"
+          value={props.card.flavorText}
+          onChange={(e) =>
+            props.onChange({ ...props.card, flavorText: e.target.value })
+          }
+        />
       </div>
       <div>
         Continuous Boost:
