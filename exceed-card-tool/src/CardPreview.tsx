@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import type { Card } from "./CardEditor";
 import frameSrc from "./assets/trueemptycard.png";
+import ultraFrameSrc from "./assets/ultraemptycard.png";
 import armPatchSrc from "./assets/armorpatch.png";
+import uArmPatchSrc from "./assets/uarmorpatch.png";
 import grdPatchSrc from "./assets/guardpatch.png";
+import uGrdPatchSrc from "./assets/uguardpatch.png";
 import contBoostIconSrc from "./assets/contboosticon.png";
+import uContBoostIconSrc from "./assets/ucontboosticon.png";
 import forceIconSrc from "./assets/forceicon.png";
 
 const nameFont = "56px ShaXizor";
 const statFont = "72px MKXTitle";
+const gaugeFont = "68px MKXTitle";
 const textFont = "32px AlgrySansMed";
 const boldTextFont = "32px AlgrySansBold";
 const italicTextFont = "32px AlgrySansItalic";
+const boldItalicTextFont = "33px AlgrySansBoldItalic";
 const boostNameFont = "28px ShaXizor";
 
 interface CardPreviewProps {
@@ -18,13 +24,27 @@ interface CardPreviewProps {
 }
 
 export function CardPreview({ card }: CardPreviewProps) {
-  const frame = useImage(frameSrc);
+  const frame = useImage(card.isUltra ? ultraFrameSrc : frameSrc);
   const armPatch = useImage(armPatchSrc);
+  const uArmPatch = useImage(uArmPatchSrc);
   const grdPatch = useImage(grdPatchSrc);
+  const uGrdPatch = useImage(uGrdPatchSrc);
   const contBoostIcon = useImage(contBoostIconSrc);
+  const uContBoostIcon = useImage(uContBoostIconSrc);
   const forceIcon = useImage(forceIconSrc);
   const cardImage = useImage(card.cardImage);
   const cardIcon = useImage(card.cardIcon);
+
+  const handleExport = () => {
+    const canvas = document.getElementById("card-preview") as HTMLCanvasElement;
+    if (!canvas) return;
+    const link = document.createElement("a");
+    const filename =
+      card.name.trim().replace(/\s+/g, "_").toLowerCase() || "card";
+    link.download = `${filename}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
 
   useEffect(() => {
     const cardCanvas = document.getElementById(
@@ -53,14 +73,13 @@ export function CardPreview({ card }: CardPreviewProps) {
       const targetWidth = 92;
       const scale = targetWidth / cardIcon.width;
       const targetHeight = cardIcon.height * scale;
-      console.log(card.cardIcon);
 
       //ctx.drawImage(cardIcon, 629, 31, targetWidth, targetHeight);
       drawIconClippedToCircle(
         ctx,
         cardIcon,
         626,
-        30,
+        35,
         targetWidth,
         targetHeight,
       );
@@ -69,17 +88,18 @@ export function CardPreview({ card }: CardPreviewProps) {
     // Draw the Frame
     ctx.drawImage(frame, 0, 0);
 
-    // Draw the Patches
+    // Draw the Patches, checking for if its an ultra.
     if (armPatch && card.armor > 0) {
-      ctx.drawImage(armPatch, 22, 430);
+      ctx.drawImage(card.isUltra ? uArmPatch : armPatch, 22, 430);
     }
     if (grdPatch && card.guard > 0) {
-      ctx.drawImage(grdPatch, 22, 532);
+      ctx.drawImage(card.isUltra ? uGrdPatch : grdPatch, 22, 532);
     }
     if (contBoostIcon && card.isContinuousBoost) {
-      ctx.drawImage(contBoostIcon, 12, 809);
+      ctx.drawImage(card.isUltra ? uContBoostIcon : contBoostIcon, 12, 809);
     }
-    if (forceIcon && card.forceCost > 0) {
+    // Only use force icon if its not an ultra. Gauge is built into ultra frames.
+    if (forceIcon && card.resourceCost > 0 && !card.isUltra) {
       ctx.drawImage(forceIcon, 4, 8);
     }
 
@@ -100,14 +120,34 @@ export function CardPreview({ card }: CardPreviewProps) {
     ctx.fillText(`${defStatToText(card.armor)}`, 100, 507);
     ctx.fillText(`${defStatToText(card.guard)}`, 100, 614);
 
-    // Draw the Force Cost Text
-    ctx.fillText(`${defStatToText(card.forceCost)}`, 41, 83);
+    // Draw the Resource Cost Text
+    if (card.isUltra) {
+      ctx.font = gaugeFont;
+      ctx.fillText(`${spdOrCostToText(card.resourceCost)}`, 44, 80);
+    } else {
+      ctx.font = statFont;
+      ctx.fillText(`${defStatToText(card.resourceCost)}`, 41, 83);
+    }
+    ctx.font = statFont;
     ctx.fillText(`${spdOrCostToText(card.boostForceCost)}`, 70, 959);
+
+    // Draw the Flavor Text
+    ctx.letterSpacing = "0px";
+    ctx.font = boldItalicTextFont;
+    drawRichText(ctx, card.flavorText, 375, 680, 2, 500, 30);
 
     // Draw the Action Text
     ctx.letterSpacing = "0px";
     ctx.font = textFont;
-    drawRichText(ctx, card.actionText, 375, 737, 5, 500);
+    const hasFlavorText = card.flavorText != "";
+    drawRichText(
+      ctx,
+      card.actionText,
+      375,
+      hasFlavorText ? 770 : 737,
+      hasFlavorText ? 3 : 5,
+      500,
+    );
 
     // Draw the Boost Name
     ctx.textAlign = "left";
@@ -134,12 +174,20 @@ export function CardPreview({ card }: CardPreviewProps) {
   ]);
 
   return (
-    <canvas
-      width={750}
-      height={1024}
-      id="card-preview"
-      className="w-[500px]"
-    ></canvas>
+    <div>
+      <canvas
+        width={750}
+        height={1024}
+        id="card-preview"
+        className="w-[562px] h-auto self-start"
+      ></canvas>
+      <button
+        onClick={handleExport}
+        className="mt-1 bg-gray-200 text-black px-3 py-1"
+      >
+        Export PNG
+      </button>
+    </div>
   );
 }
 
@@ -151,7 +199,7 @@ const rangeToText = (range: [number | undefined, number | undefined]) => {
   if (!Number.isInteger(min) && !Number.isInteger(max)) {
     return "N/A";
   } else if (Number.isInteger(min) && Number.isInteger(max)) {
-    return `${min}~${max}`;
+    return min != max ? `${min}~${max}` : min;
   } else {
     return !Number.isInteger(min) ? `${max}` : `${min}`;
   }
@@ -210,29 +258,44 @@ interface Fragment {
 // Take a string of text with bbcode-esque formatting, e.g. "hello [b]bold world[/b]", and split it inito
 // rich text fragments
 const parseFragments = (text: string): Fragment[] => {
-  return text.split(/(\[[birgyup]\].*?\[\/[birgyup]\])/).map((split) => {
-    let curFont = textFont;
-    let curColor = "#000000";
-    if (split.startsWith("[b]")) {
-      curFont = boldTextFont;
-      console.log("bold hit");
-    } else if (split.startsWith("[i]")) {
-      curFont = italicTextFont;
-    } else if (split.startsWith("[r]")) {
-      curColor = "#b80000";
-    } else if (split.startsWith("[g]")) {
-      curColor = "#127a00";
-    } else if (split.startsWith("[y]")) {
-      curColor = "#877400";
-    } else if (split.startsWith("[p]")) {
-      curColor = "#7d2e81";
-    } else if (split.startsWith("[u]")) {
-      curColor = "#0069ff";
-    } else {
-      return { font: textFont, content: split, color: curColor };
-    }
-    return { font: curFont, content: split.slice(3, -4), color: curColor };
-  });
+  return text
+    .split(/(\[[birgyupf]{1,2}\].*?\[\/[birgyupf]{1,2}\])/)
+    .map((split) => {
+      let curFont = textFont;
+      let curColor = "#000000";
+      let curSplit = split;
+      if (split.startsWith("[b]") && split.endsWith("[/b]")) {
+        curFont = boldTextFont;
+        curSplit = split.slice(3, -4);
+      } else if (split.startsWith("[i]") && split.endsWith("[/i]")) {
+        curFont = italicTextFont;
+        curSplit = split.slice(3, -4);
+      } else if (split.startsWith("[bi]") && split.endsWith("[/bi]")) {
+        curFont = boldItalicTextFont;
+        curSplit = split.slice(4, -5);
+      } else if (split.startsWith("[r]") && split.endsWith("[/r]")) {
+        curColor = "#b80000";
+        curSplit = split.slice(3, -4);
+      } else if (split.startsWith("[g]") && split.endsWith("[/g]")) {
+        curColor = "#127a00";
+        curSplit = split.slice(3, -4);
+      } else if (split.startsWith("[y]") && split.endsWith("[/y]")) {
+        curColor = "#877400";
+        curSplit = split.slice(3, -4);
+      } else if (split.startsWith("[p]") && split.endsWith("[/p]")) {
+        curColor = "#7d2e81";
+        curSplit = split.slice(3, -4);
+      } else if (split.startsWith("[u]") && split.endsWith("[/u]")) {
+        curColor = "#0069ff";
+        curSplit = split.slice(3, -4);
+      } else if (split.startsWith("[f]") && split.endsWith("[/f]")) {
+        // flavor text
+        curColor = "#ff0000";
+        curFont = boldItalicTextFont;
+        curSplit = split.slice(3, -4);
+      }
+      return { font: curFont, content: curSplit, color: curColor };
+    });
 };
 
 // Take a fragment of text and split it on `splitter` into several fragments,
@@ -339,7 +402,7 @@ const measureFragment = (ctx: CanvasRenderingContext2D, fragment: Fragment) => {
 const getFragmentLineWidth = (
   ctx: CanvasRenderingContext2D,
   line: Fragment[],
-) => line.map((f) => measureFragment(ctx, f).width).reduce((a, b) => a + b);
+) => line.map((f) => measureFragment(ctx, f).width).reduce((a, b) => a + b, 0);
 
 const drawFragment = (
   ctx: CanvasRenderingContext2D,
@@ -359,9 +422,7 @@ const drawFragmentLine = (
   x: number,
   y: number,
 ) => {
-  const totalWidth = line
-    .map((f) => measureFragment(ctx, f).width)
-    .reduce((a, b) => a + b);
+  const totalWidth = getFragmentLineWidth(ctx, line);
 
   let cursorX = x - totalWidth / 2;
   for (const fragment of line) {
@@ -395,6 +456,7 @@ const drawRichText = (
   y: number,
   maximumLineCount: number,
   textBoxWidth: number,
+  lineHeight = 35,
 ) => {
   const parsedFragments = parseFragments(text);
   const fragmentLines = splitFragments(parsedFragments, "\n");
@@ -406,6 +468,6 @@ const drawRichText = (
     wrappedFragmentLines.slice(0, maximumLineCount),
     x,
     y,
-    35,
+    lineHeight,
   );
 };

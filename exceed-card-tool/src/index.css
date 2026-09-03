@@ -22,5 +22,10 @@
 
 @font-face {
     font-family: AlgrySansItalic;
-    src: url("alegreya-sans/AlegreyaSans-Italic.otf")
+    src: url("/alegreya-sans/AlegreyaSans-MediumItalic.otf")
+}
+
+@font-face {
+    font-family: AlgrySansBoldItalic;
+    src: url("/alegreya-sans/AlegreyaSans-BoldItalic.otf");
 }

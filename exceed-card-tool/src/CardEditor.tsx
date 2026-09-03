@@ -2,7 +2,7 @@ import blankIcon from "./assets/blankicon.png";
 
 export interface Card {
   name: string;
-  forceCost: number;
+  resourceCost: number;
   range: [number | undefined, number | undefined];
   power?: number;
   speed?: number;
@@ -16,11 +16,12 @@ export interface Card {
   boostForceCost: number;
   cardImage?: string;
   cardIcon?: string;
+  isUltra: boolean;
 }
 
 export const defaultCard: Card = {
   name: "New Card",
-  forceCost: 0,
+  resourceCost: 0,
   range: [undefined, undefined],
   power: undefined,
   speed: 0,
@@ -34,6 +35,7 @@ export const defaultCard: Card = {
   boostForceCost: 0,
   cardImage: undefined,
   cardIcon: blankIcon,
+  isUltra: false,
 };
 
 export interface CardEditorProps {
@@ -71,8 +73,6 @@ export function CardEditor(props: CardEditorProps) {
 
   return (
     <div>
-      <div>Card Editor</div>
-
       <div>
         Name:
         <input
@@ -82,18 +82,59 @@ export function CardEditor(props: CardEditorProps) {
             props.onChange({ ...props.card, name: e.target.value })
           }
         />
-        Force Cost:
-        <input
-          type="number"
-          className="bg-gray-100 w-10 m-1"
-          value={props.card.forceCost}
-          onChange={(e) =>
-            props.onChange({
-              ...props.card,
-              forceCost: Math.max(0, Math.min(9, e.target.valueAsNumber)),
-            })
-          }
-        />
+      </div>
+      <div>
+        <label>
+          Ultra:
+          <input
+            type="checkbox"
+            className="bg-gray-100 m-1"
+            checked={props.card.isUltra}
+            onChange={() =>
+              props.onChange({ ...props.card, isUltra: !props.card.isUltra })
+            }
+          />
+          {props.card.isUltra}
+        </label>
+
+        {props.card.isUltra && (
+          <>
+            Gauge Cost:
+            <input
+              type="number"
+              className="bg-gray-100 w-10 m-1"
+              value={props.card.resourceCost}
+              onChange={(e) =>
+                props.onChange({
+                  ...props.card,
+                  resourceCost: Math.max(
+                    0,
+                    Math.min(9, e.target.valueAsNumber),
+                  ),
+                })
+              }
+            />
+          </>
+        )}
+        {!props.card.isUltra && (
+          <>
+            Force Cost:
+            <input
+              type="number"
+              className="bg-gray-100 w-10 m-1"
+              value={props.card.resourceCost}
+              onChange={(e) =>
+                props.onChange({
+                  ...props.card,
+                  resourceCost: Math.max(
+                    0,
+                    Math.min(9, e.target.valueAsNumber),
+                  ),
+                })
+              }
+            />
+          </>
+        )}
       </div>
       <div>
         Range:
@@ -197,13 +238,15 @@ export function CardEditor(props: CardEditorProps) {
       </div>
       <div>
         Flavor Text:
-        <input
-          className="bg-gray-100 m-1"
-          value={props.card.flavorText}
-          onChange={(e) =>
-            props.onChange({ ...props.card, flavorText: e.target.value })
-          }
-        />
+        <div>
+          <textarea
+            className="bg-gray-100 h-12 w-100 resize-none"
+            value={props.card.flavorText}
+            onChange={(e) =>
+              props.onChange({ ...props.card, flavorText: e.target.value })
+            }
+          />
+        </div>
       </div>
       <div>
         Continuous Boost:
