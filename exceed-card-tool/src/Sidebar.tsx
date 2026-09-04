@@ -1,16 +1,37 @@
 import type { Card } from "./CardEditor";
 
 export interface SidebarProps {
-  card: Card;
+  cards: Card[];
+  curCardId: string;
+  onSelect: (id: string) => void;
+  onAddCardButtonClicked: () => void;
 }
 
 export function Sidebar(props: SidebarProps) {
   return (
-    <div className="w-48 border-r p-2">
-      <div className="text-black mb-1">Decklist</div>
-      <div className="bg-gray-600 text-white px-2 py-1">
-        {props.card.name || "Unnamed"}
+    <div className="w-48 border-r p-2 ">
+      <div className="text-black mb-1 ">Decklist</div>
+      <div className="bg-gray-600 text-white px-2 py-1 w-full">
+        {props.cards.map((card) => (
+          <button
+            key={card.id}
+            onClick={() => props.onSelect(card.id)}
+            className={`px-2 py-1 cursor-pointer w-full ${
+              card.id == props.curCardId
+                ? "bg-gray-800 text-white"
+                : "bg-gray-200 text-black"
+            }`}
+          >
+            {card.name || "Unnamed"}
+          </button>
+        ))}
       </div>
+      <button
+        onClick={props.onAddCardButtonClicked}
+        className="text-xs bg-gray-200 text-black px-2 py-1 cursor-pointer"
+      >
+        Add Card
+      </button>
     </div>
   );
 }

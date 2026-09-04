@@ -237,6 +237,7 @@ const useImage = (src: string) => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
   useEffect(() => {
+    setImage(null);
     const img = new Image();
     img.src = src;
     img.onload = () => setImage(img);

@@ -1,11 +1,12 @@
 import blankIcon from "./assets/blankicon.png";
 
 export interface Card {
+  id: string;
   name: string;
   resourceCost: number;
   range: [number | undefined, number | undefined];
   power?: number;
-  speed?: number;
+  speed: number;
   armor?: number;
   guard?: number;
   actionText: string;
@@ -20,6 +21,7 @@ export interface Card {
 }
 
 export const defaultCard: Card = {
+  id: crypto.randomUUID(),
   name: "New Card",
   resourceCost: 0,
   range: [undefined, undefined],
@@ -36,6 +38,13 @@ export const defaultCard: Card = {
   cardImage: undefined,
   cardIcon: blankIcon,
   isUltra: false,
+};
+
+export const addNewCard = (): Card => {
+  return {
+    ...defaultCard,
+    id: crypto.randomUUID(),
+  };
 };
 
 export interface CardEditorProps {
@@ -103,7 +112,7 @@ export function CardEditor(props: CardEditorProps) {
             <input
               type="number"
               className="bg-gray-100 w-10 m-1"
-              value={props.card.resourceCost}
+              value={props.card.resourceCost ?? ""}
               onChange={(e) =>
                 props.onChange({
                   ...props.card,
@@ -122,7 +131,7 @@ export function CardEditor(props: CardEditorProps) {
             <input
               type="number"
               className="bg-gray-100 w-10 m-1"
-              value={props.card.resourceCost}
+              value={props.card.resourceCost ?? ""}
               onChange={(e) =>
                 props.onChange({
                   ...props.card,
@@ -141,7 +150,7 @@ export function CardEditor(props: CardEditorProps) {
         <input
           className="bg-gray-100 w-10 m-1"
           type="number"
-          value={props.card.range[0]}
+          value={props.card.range[0] ?? ""}
           onChange={(e) =>
             props.onChange({
               ...props.card,
@@ -156,7 +165,7 @@ export function CardEditor(props: CardEditorProps) {
         <input
           className="bg-gray-100 w-10 m-1"
           type="number"
-          value={props.card.range[1]}
+          value={props.card.range[1] ?? ""}
           onChange={(e) =>
             props.onChange({
               ...props.card,
@@ -173,7 +182,7 @@ export function CardEditor(props: CardEditorProps) {
         <input
           className="bg-gray-100 w-10 m-1"
           type="number"
-          value={props.card.power}
+          value={props.card.power ?? ""}
           onChange={(e) =>
             props.onChange({
               ...props.card,
@@ -188,12 +197,14 @@ export function CardEditor(props: CardEditorProps) {
           className="bg-gray-100 w-10 m-1"
           type="number"
           value={props.card.speed}
-          onChange={(e) =>
-            props.onChange({
-              ...props.card,
-              speed: Math.max(0, Math.min(99, e.target.valueAsNumber)),
-            })
-          }
+          onChange={(e) => {
+            if (Number.isInteger(e.target.valueAsNumber)) {
+              props.onChange({
+                ...props.card,
+                speed: Math.max(0, Math.min(99, e.target.valueAsNumber)),
+              });
+            }
+          }}
         />
       </div>
       <div>
@@ -202,12 +213,14 @@ export function CardEditor(props: CardEditorProps) {
           className="bg-gray-100 w-10 m-1"
           type="number"
           value={props.card.armor}
-          onChange={(e) =>
-            props.onChange({
-              ...props.card,
-              armor: Math.max(0, Math.min(99, e.target.valueAsNumber)),
-            })
-          }
+          onChange={(e) => {
+            if (Number.isInteger(e.target.valueAsNumber)) {
+              props.onChange({
+                ...props.card,
+                armor: Math.max(0, Math.min(99, e.target.valueAsNumber)),
+              });
+            }
+          }}
         />
       </div>
       <div>
@@ -216,12 +229,14 @@ export function CardEditor(props: CardEditorProps) {
           className="bg-gray-100 w-10 m-1"
           type="number"
           value={props.card.guard}
-          onChange={(e) =>
-            props.onChange({
-              ...props.card,
-              guard: Math.max(0, Math.min(99, e.target.valueAsNumber)),
-            })
-          }
+          onChange={(e) => {
+            if (Number.isInteger(e.target.valueAsNumber)) {
+              props.onChange({
+                ...props.card,
+                guard: Math.max(0, Math.min(99, e.target.valueAsNumber)),
+              });
+            }
+          }}
         />
       </div>
       <div>
@@ -253,6 +268,7 @@ export function CardEditor(props: CardEditorProps) {
         <input
           type="checkbox"
           className="bg-gray-100 m-1"
+          checked={props.card.isContinuousBoost}
           onChange={(e) =>
             props.onChange({
               ...props.card,
