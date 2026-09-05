@@ -5,7 +5,7 @@ import { Sidebar } from "./Sidebar";
 
 function App() {
   const [cards, setCards] = useState<Card[]>([defaultCard]);
-  const [curCardId, setCurCardId] = useState<string>(defaultCard.id);
+  const [curCardId, setCurCardId] = useState<string | null>(defaultCard.id);
   const curCard = cards.find((c) => c.id == curCardId);
 
   const updateCurCard = (newCard: Card) => {
@@ -20,6 +20,13 @@ function App() {
     setCurCardId(newCard.id);
   };
 
+  const removeCard = (id: string) => {
+    if (id == curCardId) {
+      setCurCardId(null);
+    }
+    setCards(cards.filter((card) => card.id != id));
+  };
+
   return (
     <>
       <div className="flex min-h-screen">
@@ -28,9 +35,18 @@ function App() {
           curCardId={curCardId}
           onSelect={setCurCardId}
           onAddCardButtonClicked={addCard}
+          onRemoveCardButtonClicked={removeCard}
         />
-        <CardEditor key={curCardId} card={curCard} onChange={updateCurCard} />
-        <CardPreview card={curCard} />
+        {curCardId != null && (
+          <>
+            <CardEditor
+              key={curCardId}
+              card={curCard}
+              onChange={updateCurCard}
+            />
+            <CardPreview card={curCard} />
+          </>
+        )}
       </div>
     </>
   );

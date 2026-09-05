@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Card } from "./CardEditor";
 import frameSrc from "./assets/trueemptycard.png";
 import ultraFrameSrc from "./assets/ultraemptycard.png";
+import charaFrameSrc from "./assets/characteremptycard.png";
 import armPatchSrc from "./assets/armorpatch.png";
 import uArmPatchSrc from "./assets/uarmorpatch.png";
 import grdPatchSrc from "./assets/guardpatch.png";
@@ -13,6 +14,7 @@ import forceIconSrc from "./assets/forceicon.png";
 const nameFont = "56px ShaXizor";
 const statFont = "72px MKXTitle";
 const gaugeFont = "68px MKXTitle";
+const exceedCostFont = "66px MKXTitle";
 const textFont = "32px AlgrySansMed";
 const boldTextFont = "32px AlgrySansBold";
 const italicTextFont = "32px AlgrySansItalic";
@@ -24,7 +26,14 @@ interface CardPreviewProps {
 }
 
 export function CardPreview({ card }: CardPreviewProps) {
-  const frame = useImage(card.isUltra ? ultraFrameSrc : frameSrc);
+  const frame = useImage(
+    card.cardType == "special"
+      ? frameSrc
+      : card.cardType == "ultra"
+        ? ultraFrameSrc
+        : //If not ultra or special, is chara
+          charaFrameSrc,
+  );
   const armPatch = useImage(armPatchSrc);
   const uArmPatch = useImage(uArmPatchSrc);
   const grdPatch = useImage(grdPatchSrc);
@@ -33,7 +42,20 @@ export function CardPreview({ card }: CardPreviewProps) {
   const uContBoostIcon = useImage(uContBoostIconSrc);
   const forceIcon = useImage(forceIconSrc);
   const cardImage = useImage(card.cardImage);
-  const cardIcon = useImage(card.cardIcon);
+  const cardIcon = useImage(
+    card.cardType == "character" ? undefined : card.cardIcon,
+  );
+
+  const areFontsReady = useFontsReady([
+    nameFont,
+    statFont,
+    gaugeFont,
+    textFont,
+    boldTextFont,
+    italicTextFont,
+    boldItalicTextFont,
+    boostNameFont,
+  ]);
 
   const handleExport = () => {
     const canvas = document.getElementById("card-preview") as HTMLCanvasElement;
@@ -60,12 +82,21 @@ export function CardPreview({ card }: CardPreviewProps) {
 
     // Draw imported image
     if (cardImage) {
-      const targetWidth = 536;
+      if (card.cardType != "character") {
+        const targetWidth = 536;
 
-      const scale = targetWidth / cardImage.width;
-      const targetHeight = cardImage.height * scale;
+        const scale = targetWidth / cardImage.width;
+        const targetHeight = cardImage.height * scale;
 
-      ctx.drawImage(cardImage, 146, 100, targetWidth, targetHeight);
+        ctx.drawImage(cardImage, 146, 100, targetWidth, targetHeight);
+      } else {
+        const targetWidth = 622;
+
+        const scale = targetWidth / cardImage.width;
+        const targetHeight = cardImage.height * scale;
+
+        ctx.drawImage(cardImage, 60, 108, targetWidth, targetHeight);
+      }
     }
 
     // Draw imported image (or default) for the top right icon
@@ -89,79 +120,122 @@ export function CardPreview({ card }: CardPreviewProps) {
     ctx.drawImage(frame, 0, 0);
 
     // Draw the Patches, checking for if its an ultra.
-    if (armPatch && card.armor > 0) {
-      ctx.drawImage(card.isUltra ? uArmPatch : armPatch, 22, 430);
-    }
-    if (grdPatch && card.guard > 0) {
-      ctx.drawImage(card.isUltra ? uGrdPatch : grdPatch, 22, 532);
-    }
-    if (contBoostIcon && card.isContinuousBoost) {
-      ctx.drawImage(card.isUltra ? uContBoostIcon : contBoostIcon, 12, 809);
-    }
-    // Only use force icon if its not an ultra. Gauge is built into ultra frames.
-    if (forceIcon && card.resourceCost > 0 && !card.isUltra) {
-      ctx.drawImage(forceIcon, 4, 8);
+    if (card.cardType != "character") {
+      if (armPatch && card.armor > 0) {
+        ctx.drawImage(card.cardType == "ultra" ? uArmPatch : armPatch, 22, 430);
+      }
+      if (grdPatch && card.guard > 0) {
+        ctx.drawImage(card.cardType == "ultra" ? uGrdPatch : grdPatch, 22, 532);
+      }
+      if (contBoostIcon && card.isContinuousBoost) {
+        ctx.drawImage(
+          card.cardType == "ultra" ? uContBoostIcon : contBoostIcon,
+          12,
+          809,
+        );
+      }
+      // Only use force icon if its a special. Gauge is built into ultra frames.
+      if (forceIcon && card.resourceCost > 0 && card.cardType == "special") {
+        ctx.drawImage(forceIcon, 4, 8);
+      }
     }
 
     // Draw the Name Text
-    ctx.textAlign = "left";
-    ctx.letterSpacing = "1px";
-    ctx.font = nameFont;
-    ctx.fillStyle = "#000000";
-    ctx.fillText(card.name, 95, 89);
+    if (card.cardType == "special" || card.cardType == "ultra") {
+      ctx.textAlign = "left";
+      ctx.letterSpacing = "1px";
+      ctx.font = nameFont;
+      ctx.fillStyle = "#000000";
+      ctx.fillText(card.name, 95, 89);
+    } else {
+      ctx.textAlign = "center";
+      ctx.letterSpacing = "2px";
+      ctx.font = nameFont;
+      ctx.fillStyle = "#000000";
+      ctx.fillText(card.name, 374, 793);
+    }
 
     // Draw the Stats Text
-    ctx.textAlign = "center";
-    ctx.letterSpacing = "2px";
-    ctx.font = statFont;
-    ctx.fillText(`${rangeToText(card.range)}`, 125, 183);
-    ctx.fillText(`${powToText(card.power)}`, 116, 293);
-    ctx.fillText(`${spdOrCostToText(card.speed)}`, 110, 400);
-    ctx.fillText(`${defStatToText(card.armor)}`, 100, 507);
-    ctx.fillText(`${defStatToText(card.guard)}`, 100, 614);
-
+    if (card.cardType != "character") {
+      ctx.textAlign = "center";
+      ctx.letterSpacing = "2px";
+      ctx.font = statFont;
+      ctx.fillText(`${rangeToText(card.range)}`, 125, 183);
+      ctx.fillText(`${powToText(card.power)}`, 116, 293);
+      ctx.fillText(`${spdOrCostToText(card.speed)}`, 110, 400);
+      ctx.fillText(`${defStatToText(card.armor)}`, 100, 507);
+      ctx.fillText(`${defStatToText(card.guard)}`, 100, 614);
+    }
     // Draw the Resource Cost Text
-    if (card.isUltra) {
+    if (card.cardType == "ultra") {
       ctx.font = gaugeFont;
       ctx.fillText(`${spdOrCostToText(card.resourceCost)}`, 44, 80);
-    } else {
+    }
+    if (card.cardType == "special") {
       ctx.font = statFont;
       ctx.fillText(`${defStatToText(card.resourceCost)}`, 41, 83);
     }
-    ctx.font = statFont;
-    ctx.fillText(`${spdOrCostToText(card.boostForceCost)}`, 70, 959);
+    if (card.cardType != "character") {
+      ctx.font = statFont;
+      ctx.fillText(`${spdOrCostToText(card.boostForceCost)}`, 70, 959);
+    }
 
-    // Draw the Flavor Text
-    ctx.letterSpacing = "0px";
-    ctx.font = boldItalicTextFont;
-    drawRichText(ctx, card.flavorText, 375, 680, 2, 500, 30);
+    if (card.cardType != "character") {
+      // Draw the Flavor Text
+      ctx.letterSpacing = "0px";
+      ctx.font = boldItalicTextFont;
+      drawRichText(ctx, card.flavorText, 375, 680, 2, 500, 30);
 
-    // Draw the Action Text
-    ctx.letterSpacing = "0px";
-    ctx.font = textFont;
-    const hasFlavorText = card.flavorText != "";
-    drawRichText(
-      ctx,
-      card.actionText,
-      375,
-      hasFlavorText ? 770 : 737,
-      hasFlavorText ? 3 : 5,
-      500,
-    );
+      // Draw the Action Text
+      ctx.letterSpacing = "0px";
+      ctx.font = textFont;
+      const hasFlavorText = card.flavorText != "";
+      drawRichText(
+        ctx,
+        card.cardText,
+        375,
+        hasFlavorText ? 770 : 737,
+        hasFlavorText ? 3 : 5,
+        500,
+      );
 
-    // Draw the Boost Name
-    ctx.textAlign = "left";
-    ctx.letterSpacing = "1px";
-    ctx.font = boostNameFont;
-    ctx.fillStyle = "#CCCCCC";
-    ctx.fillText(card.boostName.toUpperCase(), 93, 857);
+      // Draw the Boost Name
+      ctx.textAlign = "left";
+      ctx.letterSpacing = "1px";
+      ctx.font = boostNameFont;
+      ctx.fillStyle = "#CCCCCC";
+      ctx.fillText(card.boostName.toUpperCase(), 93, 857);
 
-    // Draw the Boost Text
-    ctx.textAlign = "center";
-    ctx.letterSpacing = "0px";
-    ctx.font = textFont;
-    ctx.fillStyle = "#000000";
-    drawRichText(ctx, card.boostText, 395, 928, 3, 550);
+      // Draw the Boost Text
+      ctx.textAlign = "center";
+      ctx.letterSpacing = "0px";
+      ctx.font = textFont;
+      ctx.fillStyle = "#000000";
+      drawRichText(ctx, card.boostText, 395, 928, 3, 550);
+    }
+
+    if (card.cardType == "character") {
+      // Draw the Flavor Text
+      ctx.letterSpacing = "0px";
+      drawRichText(ctx, card.flavorText, 375, 857, 2, 500, 30);
+
+      // Draw the Action Text
+      ctx.letterSpacing = "0px";
+      const hasFlavorText = card.flavorText != "";
+      drawRichText(
+        ctx,
+        card.cardText,
+        370,
+        hasFlavorText ? 933 : 902,
+        hasFlavorText ? 3 : 5,
+        572,
+        29,
+      );
+      // Draw the Exceed Cost
+      ctx.textAlign = "center";
+      ctx.font = exceedCostFont;
+      ctx.fillText(`${spdOrCostToText(card.resourceCost)}`, 698, 901);
+    }
   }, [
     card,
     frame,
@@ -171,6 +245,7 @@ export function CardPreview({ card }: CardPreviewProps) {
     grdPatch,
     contBoostIcon,
     forceIcon,
+    areFontsReady,
   ]);
 
   return (
@@ -233,11 +308,14 @@ const drawIconClippedToCircle = (
   ctx.restore();
 };
 
-const useImage = (src: string) => {
+const useImage = (src: string | undefined) => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
   useEffect(() => {
     setImage(null);
+    if (src === undefined) {
+      return;
+    }
     const img = new Image();
     img.src = src;
     img.onload = () => setImage(img);
@@ -260,7 +338,7 @@ interface Fragment {
 // rich text fragments
 const parseFragments = (text: string): Fragment[] => {
   return text
-    .split(/(\[[birgyupf]{1,2}\].*?\[\/[birgyupf]{1,2}\])/)
+    .split(/(\[[birgyupf]{1,2}\].*?\[\/[birgyupf]{1,2}\])/gs)
     .map((split) => {
       let curFont = textFont;
       let curColor = "#000000";
@@ -471,4 +549,22 @@ const drawRichText = (
     y,
     lineHeight,
   );
+};
+
+const useFontsReady = (fonts: string[]) => {
+  const [areFontsReady, setAreFontsReady] = useState(false);
+
+  // disabling this for the moment while debugging
+  // uncomment and remove the `return true` when things seem less broken
+  useEffect(() => {
+    const doTheThing = async () => {
+      setAreFontsReady(false);
+      await Promise.all(fonts.map((font) => document.fonts.load(font)));
+      setAreFontsReady(true);
+    };
+    doTheThing();
+  }, fonts);
+  // return true;
+
+  return areFontsReady;
 };

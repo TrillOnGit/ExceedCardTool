@@ -5,6 +5,7 @@ export interface SidebarProps {
   curCardId: string;
   onSelect: (id: string) => void;
   onAddCardButtonClicked: () => void;
+  onRemoveCardButtonClicked: (id: string) => void;
 }
 
 export function Sidebar(props: SidebarProps) {
@@ -13,17 +14,25 @@ export function Sidebar(props: SidebarProps) {
       <div className="text-black mb-1 ">Decklist</div>
       <div className="bg-gray-600 text-white px-2 py-1 w-full">
         {props.cards.map((card) => (
-          <button
-            key={card.id}
-            onClick={() => props.onSelect(card.id)}
-            className={`px-2 py-1 cursor-pointer w-full ${
-              card.id == props.curCardId
-                ? "bg-gray-800 text-white"
-                : "bg-gray-200 text-black"
-            }`}
-          >
-            {card.name || "Unnamed"}
-          </button>
+          <>
+            <button
+              key={card.id}
+              onClick={() => props.onSelect(card.id)}
+              className={`px-2 py-1 cursor-pointer w-full ${
+                card.id == props.curCardId
+                  ? "bg-gray-800 text-white"
+                  : "bg-gray-200 text-black"
+              }`}
+            >
+              {card.name || "Unnamed"}
+            </button>
+            <button
+              onClick={() => props.onRemoveCardButtonClicked(card.id)}
+              className="text-xs bg-gray-200 text-black px-2 py-1 cursor-pointer"
+            >
+              Remove Current Card
+            </button>
+          </>
         ))}
       </div>
       <button
