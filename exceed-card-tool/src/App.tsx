@@ -35,24 +35,52 @@ function App() {
   };
 
   const downloadCardsImage = async () => {
-    // const canvas = document.getElementById("cards-image") as HTMLCanvasElement;
-    // if (!canvas) return;
     const link = document.createElement("a");
-    const filename = "cardsheet";
-    link.download = `${filename}.png`;
-    link.href = await generateCardsCanvas();
+    let filename = "Specials_Cardsheet";
+    const deckCards = cards.filter(
+      (card) => card.cardType === "special" || card.cardType === "ultra",
+    );
+    const characterFaceCards = cards.filter(
+      (card) => card.cardType === "character",
+    );
 
+    const extraFaceCards = cards.filter((card) => card.cardType === "extra");
+    link.download = `${filename}.png`;
+
+    link.href = await generateCardsCanvas(deckCards);
     link.click();
+
+    // Create and download images for each character card
+    for (let i = 0; i < characterFaceCards.length; i++) {
+      const downloadTarget = characterFaceCards[i];
+      let filename = downloadTarget.isExceedSide
+        ? `${downloadTarget.name}_Exceeded_Character_Card`
+        : `${downloadTarget.name}_Character_Card`;
+      link.download = `${filename}.png`;
+      link.href = await generateCardsCanvas([downloadTarget]);
+      link.click();
+    }
+
+    // Create and download images for each extra card
+    for (let i = 0; i < extraFaceCards.length; i++) {
+      const downloadTarget = extraFaceCards[i];
+      let filename = downloadTarget.isExceedSide
+        ? `${downloadTarget.name}_Exceeded_Extra_Card`
+        : `${downloadTarget.name}_Extra_Card`;
+      link.download = `${filename}.png`;
+      link.href = await generateCardsCanvas([downloadTarget]);
+      link.click();
+    }
   };
 
-  const generateCardsCanvas = async () => {
+  const generateCardsCanvas = async (cardArray: Card[]) => {
     // width of 750px, height of 1024
-    const canvas = new OffscreenCanvas(750 * cards.length, 1024);
+    const canvas = new OffscreenCanvas(750 * cardArray.length, 1024);
 
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    for (let i = 0; i < cards.length; i++) {
-      const card = cards[i];
+    for (let i = 0; i < cardArray.length; i++) {
+      const card = cardArray[i];
       const xOffset = 750 * i;
       const userImage = await loadImage(card.cardImage);
       const userIcon = await loadImage(
