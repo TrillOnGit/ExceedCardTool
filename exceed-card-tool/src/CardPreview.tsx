@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import type { Card } from "./CardEditor";
+import { useEffect, useMemo, useState } from "react";
+import type { Card, Character, Special, Ultra } from "./CardEditor";
 import frameSrc from "./assets/trueemptycard.png";
 import ultraFrameSrc from "./assets/ultraemptycard.png";
 import charaFrameSrc from "./assets/characteremptycard.png";
+import exceedFrameSrc from "./assets/exceedcharaemptycard.png";
+import extraFrameSrc from "./assets/extraemptycard.png";
 import armPatchSrc from "./assets/armorpatch.png";
 import uArmPatchSrc from "./assets/uarmorpatch.png";
 import grdPatchSrc from "./assets/guardpatch.png";
@@ -15,37 +17,29 @@ const nameFont = "56px ShaXizor";
 const statFont = "72px MKXTitle";
 const gaugeFont = "68px MKXTitle";
 const exceedCostFont = "66px MKXTitle";
-const textFont = "32px AlgrySansMed";
-const boldTextFont = "32px AlgrySansBold";
-const italicTextFont = "32px AlgrySansItalic";
-const boldItalicTextFont = "33px AlgrySansBoldItalic";
+const textFont = "26px AlgrySansMed";
+const characterTextFont = "26px AlgrySansMed";
+const boldTextFont = "26px AlgrySansBold";
+const italicTextFont = "26px AlgrySansItalic";
+const boldItalicTextFont = "26px AlgrySansBoldItalic";
 const boostNameFont = "28px ShaXizor";
+
+type CardDrawingContext =
+  CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
 interface CardPreviewProps {
   card: Card;
 }
 
 export function CardPreview({ card }: CardPreviewProps) {
-  const frame = useImage(
-    card.cardType == "special"
-      ? frameSrc
-      : card.cardType == "ultra"
-        ? ultraFrameSrc
-        : //If not ultra or special, is chara
-          charaFrameSrc,
-  );
-  const armPatch = useImage(armPatchSrc);
-  const uArmPatch = useImage(uArmPatchSrc);
-  const grdPatch = useImage(grdPatchSrc);
-  const uGrdPatch = useImage(uGrdPatchSrc);
-  const contBoostIcon = useImage(contBoostIconSrc);
-  const uContBoostIcon = useImage(uContBoostIconSrc);
-  const forceIcon = useImage(forceIconSrc);
   const cardImage = useImage(card.cardImage);
   const cardIcon = useImage(
-    card.cardType == "character" ? undefined : card.cardIcon,
+    card.cardType == "special" || card.cardType == "ultra"
+      ? card.cardIcon
+      : undefined,
   );
-
+  const imageData = useCardImageData();
+  const frame = getFrame(card, imageData);
   const areFontsReady = useFontsReady([
     nameFont,
     statFont,
@@ -80,173 +74,10 @@ export function CardPreview({ card }: CardPreviewProps) {
 
     ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
 
-    // Draw imported image
-    if (cardImage) {
-      if (card.cardType != "character") {
-        const targetWidth = 536;
+    // Draw the card
 
-        const scale = targetWidth / cardImage.width;
-        const targetHeight = cardImage.height * scale;
-
-        ctx.drawImage(cardImage, 146, 100, targetWidth, targetHeight);
-      } else {
-        const targetWidth = 622;
-
-        const scale = targetWidth / cardImage.width;
-        const targetHeight = cardImage.height * scale;
-
-        ctx.drawImage(cardImage, 60, 108, targetWidth, targetHeight);
-      }
-    }
-
-    // Draw imported image (or default) for the top right icon
-    if (cardIcon) {
-      const targetWidth = 92;
-      const scale = targetWidth / cardIcon.width;
-      const targetHeight = cardIcon.height * scale;
-
-      //ctx.drawImage(cardIcon, 629, 31, targetWidth, targetHeight);
-      drawIconClippedToCircle(
-        ctx,
-        cardIcon,
-        626,
-        35,
-        targetWidth,
-        targetHeight,
-      );
-    }
-
-    // Draw the Frame
-    ctx.drawImage(frame, 0, 0);
-
-    // Draw the Patches, checking for if its an ultra.
-    if (card.cardType != "character") {
-      if (armPatch && card.armor > 0) {
-        ctx.drawImage(card.cardType == "ultra" ? uArmPatch : armPatch, 22, 430);
-      }
-      if (grdPatch && card.guard > 0) {
-        ctx.drawImage(card.cardType == "ultra" ? uGrdPatch : grdPatch, 22, 532);
-      }
-      if (contBoostIcon && card.isContinuousBoost) {
-        ctx.drawImage(
-          card.cardType == "ultra" ? uContBoostIcon : contBoostIcon,
-          12,
-          809,
-        );
-      }
-      // Only use force icon if its a special. Gauge is built into ultra frames.
-      if (forceIcon && card.resourceCost > 0 && card.cardType == "special") {
-        ctx.drawImage(forceIcon, 4, 8);
-      }
-    }
-
-    // Draw the Name Text
-    if (card.cardType == "special" || card.cardType == "ultra") {
-      ctx.textAlign = "left";
-      ctx.letterSpacing = "1px";
-      ctx.font = nameFont;
-      ctx.fillStyle = "#000000";
-      ctx.fillText(card.name, 95, 89);
-    } else {
-      ctx.textAlign = "center";
-      ctx.letterSpacing = "2px";
-      ctx.font = nameFont;
-      ctx.fillStyle = "#000000";
-      ctx.fillText(card.name, 374, 793);
-    }
-
-    // Draw the Stats Text
-    if (card.cardType != "character") {
-      ctx.textAlign = "center";
-      ctx.letterSpacing = "2px";
-      ctx.font = statFont;
-      ctx.fillText(`${rangeToText(card.range)}`, 125, 183);
-      ctx.fillText(`${powToText(card.power)}`, 116, 293);
-      ctx.fillText(`${spdOrCostToText(card.speed)}`, 110, 400);
-      ctx.fillText(`${defStatToText(card.armor)}`, 100, 507);
-      ctx.fillText(`${defStatToText(card.guard)}`, 100, 614);
-    }
-    // Draw the Resource Cost Text
-    if (card.cardType == "ultra") {
-      ctx.font = gaugeFont;
-      ctx.fillText(`${spdOrCostToText(card.resourceCost)}`, 44, 80);
-    }
-    if (card.cardType == "special") {
-      ctx.font = statFont;
-      ctx.fillText(`${defStatToText(card.resourceCost)}`, 41, 83);
-    }
-    if (card.cardType != "character") {
-      ctx.font = statFont;
-      ctx.fillText(`${spdOrCostToText(card.boostForceCost)}`, 70, 959);
-    }
-
-    if (card.cardType != "character") {
-      // Draw the Flavor Text
-      ctx.letterSpacing = "0px";
-      ctx.font = boldItalicTextFont;
-      drawRichText(ctx, card.flavorText, 375, 680, 2, 500, 30);
-
-      // Draw the Action Text
-      ctx.letterSpacing = "0px";
-      ctx.font = textFont;
-      const hasFlavorText = card.flavorText != "";
-      drawRichText(
-        ctx,
-        card.cardText,
-        375,
-        hasFlavorText ? 770 : 737,
-        hasFlavorText ? 3 : 5,
-        500,
-      );
-
-      // Draw the Boost Name
-      ctx.textAlign = "left";
-      ctx.letterSpacing = "1px";
-      ctx.font = boostNameFont;
-      ctx.fillStyle = "#CCCCCC";
-      ctx.fillText(card.boostName.toUpperCase(), 93, 857);
-
-      // Draw the Boost Text
-      ctx.textAlign = "center";
-      ctx.letterSpacing = "0px";
-      ctx.font = textFont;
-      ctx.fillStyle = "#000000";
-      drawRichText(ctx, card.boostText, 395, 928, 3, 550);
-    }
-
-    if (card.cardType == "character") {
-      // Draw the Flavor Text
-      ctx.letterSpacing = "0px";
-      drawRichText(ctx, card.flavorText, 375, 857, 2, 500, 30);
-
-      // Draw the Action Text
-      ctx.letterSpacing = "0px";
-      const hasFlavorText = card.flavorText != "";
-      drawRichText(
-        ctx,
-        card.cardText,
-        370,
-        hasFlavorText ? 933 : 902,
-        hasFlavorText ? 3 : 5,
-        572,
-        29,
-      );
-      // Draw the Exceed Cost
-      ctx.textAlign = "center";
-      ctx.font = exceedCostFont;
-      ctx.fillText(`${spdOrCostToText(card.resourceCost)}`, 698, 901);
-    }
-  }, [
-    card,
-    frame,
-    cardImage,
-    cardIcon,
-    armPatch,
-    grdPatch,
-    contBoostIcon,
-    forceIcon,
-    areFontsReady,
-  ]);
+    drawCard(ctx, card, cardImage, cardIcon, imageData);
+  }, [card, frame, cardImage, cardIcon, areFontsReady, imageData]);
 
   return (
     <div>
@@ -280,20 +111,21 @@ const rangeToText = (range: [number | undefined, number | undefined]) => {
   }
 };
 
-const powToText = (power: number | undefined) => {
-  return Number.isInteger(power) ? `${power}` : "N/A";
+// Helper functions that determine behaviour when a number is undefined
+const valToTextWithNA = (val: number | undefined) => {
+  return Number.isInteger(val) ? `${val}` : "N/A";
 };
 
-const defStatToText = (defStat: number | undefined) => {
-  return Number.isInteger(defStat) && defStat > 0 ? `${defStat}` : "";
+const valToTextWithEmpty = (val: number | undefined) => {
+  return Number.isInteger(val) && val > 0 ? `${val}` : "";
 };
 
-const spdOrCostToText = (spdOrCost: number | undefined) => {
-  return Number.isInteger(spdOrCost) ? `${spdOrCost}` : "0";
+const valToTextMinZero = (val: number | undefined) => {
+  return Number.isInteger(val) ? `${val}` : "0";
 };
 
 const drawIconClippedToCircle = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CardDrawingContext,
   image: HTMLImageElement,
   x: number,
   y: number,
@@ -302,7 +134,7 @@ const drawIconClippedToCircle = (
 ) => {
   ctx.save();
   ctx.beginPath();
-  ctx.arc(x, y, 100, 0, Math.PI * 2);
+  ctx.arc(x + 47, y + 45, 35, 0, Math.PI * 2);
   ctx.clip();
   ctx.drawImage(image, x, y, tw, th);
   ctx.restore();
@@ -324,6 +156,17 @@ const useImage = (src: string | undefined) => {
   return image;
 };
 
+// To be used for rendering cardImage and cardIcon
+export const loadImage = async (src: string | undefined) =>
+  src == undefined
+    ? null
+    : await new Promise<HTMLImageElement>((fulfill, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => fulfill(img);
+        img.onerror = () => reject(img);
+      });
+
 // A piece of rich text with a uniform style
 interface Fragment {
   // A font representing the style
@@ -336,12 +179,16 @@ interface Fragment {
 
 // Take a string of text with bbcode-esque formatting, e.g. "hello [b]bold world[/b]", and split it inito
 // rich text fragments
-const parseFragments = (text: string): Fragment[] => {
+const parseFragments = (
+  text: string,
+  font = textFont,
+  colorOverride = "#000000",
+): Fragment[] => {
   return text
     .split(/(\[[birgyupf]{1,2}\].*?\[\/[birgyupf]{1,2}\])/gs)
     .map((split) => {
-      let curFont = textFont;
-      let curColor = "#000000";
+      let curFont = font;
+      let curColor = colorOverride;
       let curSplit = split;
       if (split.startsWith("[b]") && split.endsWith("[/b]")) {
         curFont = boldTextFont;
@@ -410,7 +257,7 @@ const splitFragments = (
 };
 
 const wrapFragmentLine = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CardDrawingContext,
   line: Fragment[],
   textBoxWidth: number,
 ): Fragment[][] => {
@@ -473,18 +320,16 @@ const collapseFragments = (fragments: Fragment[]): Fragment[] => {
   return outputFragments;
 };
 
-const measureFragment = (ctx: CanvasRenderingContext2D, fragment: Fragment) => {
+const measureFragment = (ctx: CardDrawingContext, fragment: Fragment) => {
   ctx.font = fragment.font;
   return ctx.measureText(fragment.content);
 };
 
-const getFragmentLineWidth = (
-  ctx: CanvasRenderingContext2D,
-  line: Fragment[],
-) => line.map((f) => measureFragment(ctx, f).width).reduce((a, b) => a + b, 0);
+const getFragmentLineWidth = (ctx: CardDrawingContext, line: Fragment[]) =>
+  line.map((f) => measureFragment(ctx, f).width).reduce((a, b) => a + b, 0);
 
 const drawFragment = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CardDrawingContext,
   fragment: Fragment,
   leftX: number,
   y: number,
@@ -496,7 +341,7 @@ const drawFragment = (
 };
 
 const drawFragmentLine = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CardDrawingContext,
   line: Fragment[],
   x: number,
   y: number,
@@ -514,7 +359,7 @@ const drawFragmentLine = (
 // Takes an array of lines and draws them on a canvas, centered on (x,y)
 // Each line is an array of fragments
 const drawFragmentLines = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CardDrawingContext,
   lines: Fragment[][],
   x: number,
   y: number,
@@ -529,15 +374,17 @@ const drawFragmentLines = (
 };
 
 const drawRichText = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CardDrawingContext,
   text: string,
   x: number,
   y: number,
   maximumLineCount: number,
   textBoxWidth: number,
   lineHeight = 35,
+  font = textFont,
+  colorOverride = "#000000",
 ) => {
-  const parsedFragments = parseFragments(text);
+  const parsedFragments = parseFragments(text, font, colorOverride);
   const fragmentLines = splitFragments(parsedFragments, "\n");
   const wrappedFragmentLines = fragmentLines.flatMap((l) =>
     wrapFragmentLine(ctx, l, textBoxWidth),
@@ -567,4 +414,410 @@ const useFontsReady = (fonts: string[]) => {
   // return true;
 
   return areFontsReady;
+};
+
+// Helper functions to draw on the canvas:
+const drawStats = (
+  ctx: CardDrawingContext,
+  card: Ultra | Special,
+  cardImages: CardImageData,
+) => {
+  if (cardImages.armPatch && card.armor > 0) {
+    ctx.drawImage(
+      card.cardType === "ultra" ? cardImages.uArmPatch : cardImages.armPatch,
+      22,
+      430,
+    );
+  }
+  if (cardImages.grdPatch && card.guard > 0) {
+    ctx.drawImage(
+      card.cardType === "ultra" ? cardImages.uGrdPatch : cardImages.grdPatch,
+      22,
+      532,
+    );
+  }
+  if (cardImages.contBoostIcon && card.isContinuousBoost) {
+    ctx.drawImage(
+      card.cardType === "ultra"
+        ? cardImages.uContBoostIcon
+        : cardImages.contBoostIcon,
+      12,
+      809,
+    );
+  }
+  if (
+    cardImages.forceIcon &&
+    card.resourceCost > 0 &&
+    card.cardType === "special"
+  ) {
+    ctx.drawImage(cardImages.forceIcon, 4, 8);
+  }
+
+  ctx.textAlign = "center";
+  ctx.letterSpacing = "2px";
+  ctx.font = statFont;
+  ctx.fillText(`${rangeToText(card.range)}`, 125, 183);
+  ctx.fillText(`${valToTextWithNA(card.power)}`, 116, 293);
+  ctx.fillText(`${valToTextMinZero(card.speed)}`, 110, 400);
+  ctx.fillText(`${valToTextWithEmpty(card.armor)}`, 100, 507);
+  ctx.fillText(`${valToTextWithEmpty(card.guard)}`, 100, 614);
+};
+
+const drawName = (
+  ctx: CardDrawingContext,
+  card: Card,
+  x: number,
+  y: number,
+) => {
+  if (card.cardType == "special" || card.cardType == "ultra") {
+    ctx.textAlign = "left";
+    ctx.letterSpacing = "1px";
+  } else {
+    ctx.textAlign = "center";
+    ctx.letterSpacing = "2px";
+  }
+  ctx.font = nameFont;
+  ctx.fillStyle = "#000000";
+  ctx.fillText(card.name, x, y);
+};
+
+const drawCardImage = (
+  ctx: CardDrawingContext,
+  card: Card,
+  image: HTMLImageElement,
+) => {
+  if (image) {
+    if (card.cardType == "special" || card.cardType == "ultra") {
+      const targetWidth = 536;
+
+      const scale = targetWidth / image.width;
+      const targetHeight = image.height * scale;
+
+      ctx.drawImage(image, 146, 100, targetWidth, targetHeight);
+    } else {
+      const targetWidth = 622;
+
+      const scale = targetWidth / image.width;
+      const targetHeight = image.height * scale;
+
+      ctx.drawImage(image, 60, 108, targetWidth, targetHeight);
+    }
+  }
+};
+
+const drawCardIcon = (ctx: CardDrawingContext, iconImage: HTMLImageElement) => {
+  if (iconImage) {
+    const targetWidth = 92;
+    const scale = targetWidth / iconImage.width;
+    const targetHeight = iconImage.height * scale;
+
+    //ctx.drawImage(cardIcon, 629, 31, targetWidth, targetHeight);
+    drawIconClippedToCircle(ctx, iconImage, 626, 35, targetWidth, targetHeight);
+  }
+};
+
+const drawTextAndFlavor = (
+  ctx: CardDrawingContext,
+  card: Card,
+  textX: number,
+  textY: number,
+  flavX: number,
+  flavY: number,
+) => {
+  const hasFlavorText = card.flavorText != "";
+
+  if (card.cardType == "special" || card.cardType == "ultra") {
+    // Draw the Flavor Text
+    ctx.letterSpacing = "0px";
+    drawRichText(
+      ctx,
+      card.flavorText,
+      flavX,
+      flavY,
+      2,
+      500,
+      30,
+      boldItalicTextFont,
+      "#ff0000",
+    );
+
+    // Draw the Action Text
+    drawRichText(
+      ctx,
+      card.cardText,
+      textX,
+      hasFlavorText ? textY + 33 : textY,
+      hasFlavorText ? 3 : 5,
+      500,
+    );
+  }
+
+  if (card.cardType == "character") {
+    // Draw the Flavor Text
+    ctx.letterSpacing = "0px";
+    drawRichText(
+      ctx,
+      card.flavorText,
+      flavX,
+      flavY,
+      2,
+      572,
+      30,
+      boldItalicTextFont,
+      "#ff0000",
+    );
+
+    // Draw the Ability Text
+    drawRichText(
+      ctx,
+      card.cardText,
+      textX,
+      hasFlavorText ? textY + 33 : textY,
+      hasFlavorText ? 3 : 5,
+      572,
+      29,
+      characterTextFont,
+      card.isExceedSide ? "#CCCCCC" : "#000000",
+    );
+  }
+
+  if (card.cardType == "extra") {
+    // Draw Flavor Text
+    ctx.letterSpacing = "0px";
+    drawRichText(
+      ctx,
+      card.flavorText,
+      flavX,
+      flavY,
+      2,
+      575,
+      30,
+      boldItalicTextFont,
+      "#ff0000",
+    );
+
+    // Draw the Ability Text
+    drawRichText(
+      ctx,
+      card.cardText,
+      textX,
+      hasFlavorText ? textY + 33 : textY,
+      hasFlavorText ? 3 : 5,
+      608,
+      29,
+      characterTextFont,
+      card.isExceedSide ? "#CCCCCC" : "#000000",
+    );
+  }
+};
+
+const drawBoostName = (
+  ctx: CardDrawingContext,
+  card: Ultra | Special,
+  x: number,
+  y: number,
+) => {
+  ctx.textAlign = "left";
+  ctx.letterSpacing = "1px";
+  ctx.font = boostNameFont;
+  ctx.fillStyle = "#CCCCCC";
+  ctx.fillText(card.boostName.toUpperCase(), x, y);
+};
+
+const drawBoostText = (
+  ctx: CardDrawingContext,
+  card: Ultra | Special,
+  x: number,
+  y: number,
+) => {
+  ctx.textAlign = "center";
+  ctx.letterSpacing = "0px";
+  ctx.font = textFont;
+  ctx.fillStyle = "#000000";
+  drawRichText(ctx, card.boostText, x, y, 3, 550);
+};
+
+const drawGaugeCost = (
+  ctx: CardDrawingContext,
+  card: Ultra,
+  x: number,
+  y: number,
+) => {
+  ctx.textAlign = "center";
+  ctx.font = gaugeFont;
+  ctx.fillText(`${valToTextMinZero(card.resourceCost)}`, x, y);
+};
+
+const drawForceCost = (
+  ctx: CardDrawingContext,
+  card: Special,
+  x: number,
+  y: number,
+) => {
+  ctx.textAlign = "center";
+  ctx.font = statFont;
+  ctx.fillText(`${valToTextWithEmpty(card.resourceCost)}`, x, y);
+};
+
+const drawBoostForceCost = (
+  ctx: CardDrawingContext,
+  card: Ultra | Special,
+  x: number,
+  y: number,
+) => {
+  ctx.font = statFont;
+  ctx.fillText(`${valToTextMinZero(card.boostForceCost)}`, x, y);
+};
+
+const drawExceedCost = (
+  ctx: CardDrawingContext,
+  card: Character,
+  x: number,
+  y: number,
+) => {
+  ctx.textAlign = "center";
+  ctx.font = exceedCostFont;
+  ctx.fillText(`${valToTextMinZero(card.resourceCost)}`, x, y);
+};
+
+const getFrame = (card: Card, cardImageData: CardImageData) => {
+  switch (card.cardType) {
+    case "character":
+      return card.isExceedSide
+        ? cardImageData.exceedFrame
+        : cardImageData.charaFrame;
+    case "ultra":
+      return cardImageData.ultraFrame;
+    case "extra":
+      return card.isExceedSide
+        ? cardImageData.exceedFrame
+        : cardImageData.extraFrame;
+    default:
+      return cardImageData.specialFrame;
+  }
+};
+
+interface CardImageData {
+  armPatch: HTMLImageElement | null;
+  grdPatch: HTMLImageElement | null;
+  uArmPatch: HTMLImageElement | null;
+  uGrdPatch: HTMLImageElement | null;
+  contBoostIcon: HTMLImageElement | null;
+  uContBoostIcon: HTMLImageElement | null;
+  forceIcon: HTMLImageElement | null;
+  // Frames
+  specialFrame: HTMLImageElement | null;
+  ultraFrame: HTMLImageElement | null;
+  charaFrame: HTMLImageElement | null;
+  exceedFrame: HTMLImageElement | null;
+  extraFrame: HTMLImageElement | null;
+}
+
+export const useCardImageData = (): CardImageData => {
+  const armPatch = useImage(armPatchSrc);
+  const uArmPatch = useImage(uArmPatchSrc);
+  const grdPatch = useImage(grdPatchSrc);
+  const uGrdPatch = useImage(uGrdPatchSrc);
+  const contBoostIcon = useImage(contBoostIconSrc);
+  const uContBoostIcon = useImage(uContBoostIconSrc);
+  const forceIcon = useImage(forceIconSrc);
+  const specialFrame = useImage(frameSrc);
+  const ultraFrame = useImage(ultraFrameSrc);
+  const charaFrame = useImage(charaFrameSrc);
+  const exceedFrame = useImage(exceedFrameSrc);
+  const extraFrame = useImage(extraFrameSrc);
+
+  const imageData = useMemo(
+    () => ({
+      armPatch,
+      uArmPatch,
+      grdPatch,
+      uGrdPatch,
+      contBoostIcon,
+      uContBoostIcon,
+      forceIcon,
+      specialFrame,
+      ultraFrame,
+      charaFrame,
+      exceedFrame,
+      extraFrame,
+    }),
+    [
+      armPatch,
+      uArmPatch,
+      grdPatch,
+      uGrdPatch,
+      contBoostIcon,
+      uContBoostIcon,
+      forceIcon,
+      specialFrame,
+      ultraFrame,
+      charaFrame,
+      exceedFrame,
+      extraFrame,
+    ],
+  );
+
+  return imageData;
+};
+
+export const drawCard = async (
+  ctx: CardDrawingContext,
+  card: Card,
+  userImage: HTMLImageElement,
+  userIcon: HTMLImageElement,
+  cardImageData: CardImageData,
+) => {
+  // Draw imported image
+  drawCardImage(ctx, card, userImage);
+
+  // Draw imported image (or default) for the top right icon if ultra or special
+  drawCardIcon(ctx, userIcon);
+
+  // Draw the Frame on top of icon and image
+  ctx.drawImage(getFrame(card, cardImageData), 0, 0);
+
+  // Draw shared elements for special and ultra
+  if (card.cardType == "special" || card.cardType == "ultra") {
+    // Draw the Patches and stat text
+    drawStats(ctx, card, cardImageData); // <- Bad?
+    // Bottom left boost costs
+    drawBoostForceCost(ctx, card, 70, 959);
+
+    // Draw the Name Text
+    drawName(ctx, card, 95, 89);
+
+    drawBoostName(ctx, card, 93, 857);
+    drawBoostText(ctx, card, 395, 928);
+
+    drawTextAndFlavor(ctx, card, 375, 737, 375, 680);
+  }
+
+  if (card.cardType == "special") {
+    //Only card type with force cost top left
+    drawForceCost(ctx, card, 41, 83);
+  }
+
+  if (card.cardType == "ultra") {
+    // Only card type with gauge in top left
+    drawGaugeCost(ctx, card, 44, 80);
+  }
+
+  if (card.cardType == "character") {
+    // Name drawn at lower position
+    drawName(ctx, card, 374, 793);
+
+    // Only card type with exceed cost
+    if (!card.isExceedSide) {
+      drawExceedCost(ctx, card, 698, 901);
+    }
+
+    drawTextAndFlavor(ctx, card, 367, 902, 370, 857);
+  }
+
+  if (card.cardType == "extra") {
+    drawName(ctx, card, 375, 793);
+
+    drawTextAndFlavor(ctx, card, 375, 902, 375, 857);
+  }
 };

@@ -1,6 +1,6 @@
 import blankIcon from "./assets/blankicon.png";
 
-export type Card = Special | Character | Ultra;
+export type Card = Special | Character | Ultra | Extra;
 
 export interface Special {
   cardType: "special";
@@ -50,6 +50,17 @@ export interface Character {
   cardText: string;
   flavorText: string;
   cardImage?: string;
+  isExceedSide: boolean;
+}
+
+export interface Extra {
+  cardType: "extra";
+  id: string;
+  name: string;
+  cardText: string;
+  flavorText: string;
+  cardImage?: string;
+  isExceedSide: boolean;
 }
 
 export const defaultCard: Card = {
@@ -68,7 +79,7 @@ export const defaultCard: Card = {
   boostName: "",
   boostText: "",
   boostForceCost: 0,
-  cardImage: undefined,
+  cardImage: "./src/assets/redbackground.png",
   cardIcon: blankIcon,
 };
 
@@ -79,7 +90,8 @@ export const defaultCharacterCard: Card = {
   resourceCost: 3,
   cardText: "",
   flavorText: "",
-  cardImage: undefined,
+  cardImage: "./src/assets/redbackground.png",
+  isExceedSide: false,
 };
 
 export const defaultUltraCard: Card = {
@@ -98,8 +110,18 @@ export const defaultUltraCard: Card = {
   boostName: "",
   boostText: "",
   boostForceCost: 0,
-  cardImage: undefined,
+  cardImage: "./src/assets/redbackground.png",
   cardIcon: blankIcon,
+};
+
+export const defaultExtraCard: Card = {
+  cardType: "extra",
+  id: crypto.randomUUID(),
+  name: "Extra",
+  cardText: "",
+  flavorText: "",
+  cardImage: "./src/assets/redbackground.png",
+  isExceedSide: false,
 };
 
 export const addNewCard = (): Card => {
@@ -127,6 +149,10 @@ export function CardEditor({ card, onChange }: CardEditorProps) {
 
       {card.cardType == "character" && (
         <CharacterCardEditor card={card} onChange={onChange} />
+      )}
+
+      {card.cardType == "extra" && (
+        <ExtraCardEditor card={card} onChange={onChange} />
       )}
     </div>
   );
@@ -277,11 +303,15 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
               if (e.target.value == "ultra") {
                 onChange({ ...defaultUltraCard, id: props.card.id });
               }
+              if (e.target.value == "extra") {
+                onChange({ ...defaultExtraCard, id: props.card.id });
+              }
             }}
           >
             <option value="character">Character</option>
             <option value="special">Special</option>
             <option value="ultra">Ultra</option>
+            <option value="extra">Extra</option>
           </select>
         </label>
         {/* Only for specials */}
@@ -434,11 +464,15 @@ function UltraCardEditor(props: UltraCardEditorProps) {
                 if (e.target.value == "ultra") {
                   onChange({ ...defaultUltraCard, id: props.card.id });
                 }
+                if (e.target.value == "extra") {
+                  onChange({ ...defaultExtraCard, id: props.card.id });
+                }
               }}
             >
               <option value="character">Character</option>
               <option value="special">Special</option>
               <option value="ultra">Ultra</option>
+              <option value="extra">Extra</option>
             </select>
           </label>
           Gauge Cost:
@@ -584,25 +618,36 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
                 if (e.target.value == "ultra") {
                   onChange({ ...defaultUltraCard, id: props.card.id });
                 }
+                if (e.target.value == "extra") {
+                  onChange({ ...defaultExtraCard, id: props.card.id });
+                }
               }}
             >
               <option value="character">Character</option>
               <option value="special">Special</option>
               <option value="ultra">Ultra</option>
+              <option value="extra">Extra</option>
             </select>
           </label>
-          Exceed Cost:
-          <input
-            type="number"
-            className="bg-gray-100 w-10 m-1"
-            value={card.resourceCost ?? ""}
-            onChange={(e) =>
-              onChange({
-                ...card,
-                resourceCost: Math.max(0, Math.min(9, e.target.valueAsNumber)),
-              })
-            }
-          />
+          {!card.isExceedSide && (
+            <>
+              Exceed Cost:
+              <input
+                type="number"
+                className="bg-gray-100 w-10 m-1"
+                value={card.resourceCost ?? ""}
+                onChange={(e) =>
+                  onChange({
+                    ...card,
+                    resourceCost: Math.max(
+                      0,
+                      Math.min(9, e.target.valueAsNumber),
+                    ),
+                  })
+                }
+              />
+            </>
+          )}
         </div>
       </div>
       <>
@@ -627,6 +672,123 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
               }
             />
           </div>
+        </div>
+        <div>
+          Exceed Frame:
+          <input
+            type="checkbox"
+            className="bg-gray-100 m-1"
+            checked={card.isExceedSide}
+            onChange={(e) =>
+              onChange({
+                ...card,
+                isExceedSide: e.target.checked,
+              })
+            }
+          ></input>
+        </div>
+        <div>
+          {/* 620x620 is the image window size */}
+          Card Image:
+          <ImageUpload
+            onUpload={(image) => onChange({ ...card, cardImage: image })}
+          />
+        </div>
+      </>
+    </>
+  );
+}
+
+interface ExtraCardEditorProps {
+  card: Extra;
+  onChange: (newCard: Card) => void;
+}
+
+function ExtraCardEditor(props: ExtraCardEditorProps) {
+  const card = props.card;
+  const onChange = props.onChange;
+
+  return (
+    <>
+      <div>
+        <div>
+          Name:
+          <input
+            className="bg-gray-100 m-1"
+            value={card.name}
+            onChange={(e) => onChange({ ...card, name: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label>
+            Type:
+            <select
+              className="bg-gray-100 m-1"
+              value={card.cardType}
+              onChange={(e) => {
+                if (e.target.value == "character") {
+                  onChange({
+                    ...defaultCharacterCard,
+                    name: props.card.name,
+                    id: props.card.id,
+                  });
+                }
+                if (e.target.value == "special") {
+                  onChange({ ...defaultCard, id: props.card.id });
+                }
+                if (e.target.value == "ultra") {
+                  onChange({ ...defaultUltraCard, id: props.card.id });
+                }
+                if (e.target.value == "extra") {
+                  onChange({ ...defaultExtraCard, id: props.card.id });
+                }
+              }}
+            >
+              <option value="character">Character</option>
+              <option value="special">Special</option>
+              <option value="ultra">Ultra</option>
+              <option value="extra">Extra</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <>
+        <div>
+          Ability Text:
+          <div>
+            <textarea
+              className="bg-gray-100 m-1 h-30 w-100 resize-none"
+              value={card.cardText}
+              onChange={(e) => onChange({ ...card, cardText: e.target.value })}
+            />
+          </div>
+        </div>
+        <div>
+          Flavor Text:
+          <div>
+            <textarea
+              className="bg-gray-100 h-12 w-100 resize-none"
+              value={card.flavorText}
+              onChange={(e) =>
+                onChange({ ...card, flavorText: e.target.value })
+              }
+            />
+          </div>
+        </div>
+        <div>
+          Exceed Frame:
+          <input
+            type="checkbox"
+            className="bg-gray-100 m-1"
+            checked={card.isExceedSide}
+            onChange={(e) =>
+              onChange({
+                ...card,
+                isExceedSide: e.target.checked,
+              })
+            }
+          ></input>
         </div>
         <div>
           {/* 620x620 is the image window size */}

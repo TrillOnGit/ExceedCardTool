@@ -6,6 +6,7 @@ export interface SidebarProps {
   onSelect: (id: string) => void;
   onAddCardButtonClicked: () => void;
   onRemoveCardButtonClicked: (id: string) => void;
+  onDownloadCardsImage: () => void;
 }
 
 export function Sidebar(props: SidebarProps) {
@@ -30,7 +31,7 @@ export function Sidebar(props: SidebarProps) {
               onClick={() => props.onRemoveCardButtonClicked(card.id)}
               className="text-xs bg-gray-200 text-black px-2 py-1 cursor-pointer"
             >
-              Remove Current Card
+              Delete
             </button>
           </>
         ))}
@@ -40,6 +41,12 @@ export function Sidebar(props: SidebarProps) {
         className="text-xs bg-gray-200 text-black px-2 py-1 cursor-pointer"
       >
         Add Card
+      </button>
+      <button
+        onClick={props.onDownloadCardsImage}
+        className="text-xs bg-gray-200 text-black px-2 py-1 cursor-pointer"
+      >
+        Download Cards Image
       </button>
     </div>
   );
