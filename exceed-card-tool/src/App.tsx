@@ -98,6 +98,26 @@ function App() {
     return URL.createObjectURL(await canvas.convertToBlob());
   };
 
+  const saveJSON = () => {
+    const json = JSON.stringify(cards, null, 4);
+    const jsonBlob = new Blob([json], { type: "application/json" });
+    const jsonUrl = URL.createObjectURL(jsonBlob);
+    const link = document.createElement("a");
+    link.download = `Exceed_JSON.json`;
+    link.href = jsonUrl;
+    link.click();
+    console.log("saveJSON triggered.");
+  };
+
+  const loadJSON = (cards: Card[]) => {
+    setCards(cards);
+    if (cards[0]) {
+      setCurCardId(cards[0].id);
+    } else {
+      setCurCardId(null);
+    }
+    console.log("loadJSON Card Generation Attempted");
+  };
   return (
     <>
       <div className="flex min-h-screen">
@@ -108,6 +128,8 @@ function App() {
           onAddCardButtonClicked={addCard}
           onRemoveCardButtonClicked={removeCard}
           onDownloadCardsImage={downloadCardsImage}
+          onSaveJSONClicked={saveJSON}
+          onLoadJSONClicked={loadJSON}
         />
         {curCardId != null && (
           <>

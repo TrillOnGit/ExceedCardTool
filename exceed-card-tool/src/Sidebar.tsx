@@ -7,6 +7,8 @@ export interface SidebarProps {
   onAddCardButtonClicked: () => void;
   onRemoveCardButtonClicked: (id: string) => void;
   onDownloadCardsImage: () => void;
+  onSaveJSONClicked: () => void;
+  onLoadJSONClicked: (cards: Card[]) => void;
 }
 
 export function Sidebar(props: SidebarProps) {
@@ -42,12 +44,67 @@ export function Sidebar(props: SidebarProps) {
       >
         Add Card
       </button>
-      <button
-        onClick={props.onDownloadCardsImage}
-        className="text-xs bg-gray-200 text-black px-2 py-1 cursor-pointer"
-      >
-        Download Cards Image
-      </button>
+      <div>
+        <button
+          onClick={props.onDownloadCardsImage}
+          className="text-xs bg-gray-200 text-black px-2 py-1 cursor-pointer"
+        >
+          Export All Images
+        </button>
+      </div>
+      <div>
+        <button
+          onClick={props.onSaveJSONClicked}
+          className="text-xs bg-gray-200 text-black px-2 py-1 cursor-pointer"
+        >
+          Save Cards JSON
+        </button>
+      </div>
+      <div>
+        Load Cards JSON:
+        <JsonUpload
+          onUpload={(cards) => {
+            (console.log("Test"), props.onLoadJSONClicked(cards));
+          }}
+        />
+      </div>
     </div>
+  );
+}
+
+interface JSONUploadProps {
+  onUpload: (jsonData: Card[]) => void;
+}
+
+function JsonUpload(props: JSONUploadProps) {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        let cardsParsed = null;
+        try {
+          console.log(reader.result);
+          cardsParsed = JSON.parse(reader.result as string) as Card[];
+        } catch (err) {
+          console.log("Cards failed to parse from JSON.");
+          return;
+        }
+
+        props.onUpload(cardsParsed);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  return (
+    <input
+      type="file"
+      id="json_upload"
+      name="json_upload"
+      className="text-xs bg-gray-200 text-black w-45 px-2 py-1 cursor-pointer"
+      accept=".json"
+      onChange={onChange}
+    />
   );
 }
