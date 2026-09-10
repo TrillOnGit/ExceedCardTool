@@ -29,3 +29,28 @@
     font-family: AlgrySansBoldItalic;
     src: url("/alegreya-sans/AlegreyaSans-BoldItalic.otf");
 }
+
+body {
+    background-color: rgb(19, 19, 18);
+    color:rgb(235, 255, 255)
+}
+
+input, textarea {
+    background-color:rgb(232, 233, 229);
+    color: black;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    padding: 2px;
+    margin: 5px;
+}
+
+input {
+    background-color:rgb(232, 233, 229);
+    color: black;
+}
+
+select {
+    background-color:rgb(232, 233, 229);
+    color: black;
+}

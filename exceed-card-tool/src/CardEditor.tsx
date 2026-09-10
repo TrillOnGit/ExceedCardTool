@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import blankIcon from "./assets/blankicon.png";
 
 export type Card = Special | Character | Ultra | Extra;
@@ -86,7 +87,7 @@ export const defaultCard: Card = {
 export const defaultCharacterCard: Card = {
   cardType: "character",
   id: crypto.randomUUID(),
-  name: "Character",
+  name: "Unnamed Character",
   resourceCost: 3,
   cardText: "",
   flavorText: "",
@@ -117,7 +118,7 @@ export const defaultUltraCard: Card = {
 export const defaultExtraCard: Card = {
   cardType: "extra",
   id: crypto.randomUUID(),
-  name: "Extra",
+  name: "Unnamed Extra",
   cardText: "",
   flavorText: "",
   cardImage: "./src/assets/redbackground.png",
@@ -138,7 +139,7 @@ export interface CardEditorProps {
 
 export function CardEditor({ card, onChange }: CardEditorProps) {
   return (
-    <div>
+    <div className="p-2">
       {card.cardType == "special" && (
         <SpecialCardEditor card={card} onChange={onChange} />
       )}
@@ -169,12 +170,12 @@ function CardStatsEditor(props: CardStatsEditorProps) {
 
   return (
     <>
-      <div>
+      <div className="flex justify-center items-center p-2">
         Range:
         <input
-          className="bg-gray-100 w-10 m-1"
+          className="bg-gray-100 w-10 p-1"
           type="number"
-          value={card.range[0] ?? ""}
+          value={card.range[0]}
           onChange={(e) =>
             onChange({
               ...card,
@@ -189,7 +190,7 @@ function CardStatsEditor(props: CardStatsEditorProps) {
         <input
           className="bg-gray-100 w-10 m-1"
           type="number"
-          value={card.range[1] ?? ""}
+          value={card.range[1]}
           onChange={(e) =>
             onChange({
               ...card,
@@ -201,68 +202,73 @@ function CardStatsEditor(props: CardStatsEditorProps) {
           }
         />
       </div>
-
-      <div>
-        Power:
-        <input
-          className="bg-gray-100 w-10 m-1"
-          type="number"
-          value={card.power ?? ""}
-          onChange={(e) =>
-            onChange({
-              ...card,
-              power: Math.max(0, Math.min(99, e.target.valueAsNumber)),
-            })
-          }
-        />
-      </div>
-      <div>
-        Speed:
-        <input
-          className="bg-gray-100 w-10 m-1"
-          type="number"
-          value={card.speed}
-          onChange={(e) => {
-            if (Number.isInteger(e.target.valueAsNumber)) {
-              onChange({
-                ...card,
-                speed: Math.max(0, Math.min(99, e.target.valueAsNumber)),
-              });
-            }
-          }}
-        />
-      </div>
-      <div>
-        Armor:
-        <input
-          className="bg-gray-100 w-10 m-1"
-          type="number"
-          value={card.armor}
-          onChange={(e) => {
-            if (Number.isInteger(e.target.valueAsNumber)) {
-              onChange({
-                ...card,
-                armor: Math.max(0, Math.min(99, e.target.valueAsNumber)),
-              });
-            }
-          }}
-        />
-      </div>
-      <div>
-        Guard:
-        <input
-          className="bg-gray-100 w-10 m-1"
-          type="number"
-          value={card.guard}
-          onChange={(e) => {
-            if (Number.isInteger(e.target.valueAsNumber)) {
-              onChange({
-                ...card,
-                guard: Math.max(0, Math.min(99, e.target.valueAsNumber)),
-              });
-            }
-          }}
-        />
+      <div className="flex justify-center">
+        <div>
+          <div className="flex justify-end items-center  p-2">
+            Power:
+            <input
+              className="bg-gray-100 w-10 m-1"
+              type="number"
+              value={card.power ?? ""}
+              onChange={(e) =>
+                onChange({
+                  ...card,
+                  power: Math.max(0, Math.min(99, e.target.valueAsNumber)),
+                })
+              }
+            />
+          </div>
+          <div className="flex justify-end items-center  p-2">
+            Speed:
+            <input
+              className="bg-gray-100 w-10 m-1"
+              type="number"
+              value={card.speed}
+              onChange={(e) => {
+                if (Number.isInteger(e.target.valueAsNumber)) {
+                  onChange({
+                    ...card,
+                    speed: Math.max(0, Math.min(99, e.target.valueAsNumber)),
+                  });
+                }
+              }}
+            />
+          </div>
+        </div>{" "}
+        <div>
+          <div className="flex justify-end items-center p-2">
+            Armor:
+            <input
+              className="bg-gray-100 w-10 m-1"
+              type="number"
+              value={card.armor}
+              onChange={(e) => {
+                if (Number.isInteger(e.target.valueAsNumber)) {
+                  onChange({
+                    ...card,
+                    armor: Math.max(0, Math.min(99, e.target.valueAsNumber)),
+                  });
+                }
+              }}
+            />
+          </div>
+          <div className="flex justify-end items-center p-2">
+            Guard:
+            <input
+              className="bg-gray-100 w-10 m-1"
+              type="number"
+              value={card.guard}
+              onChange={(e) => {
+                if (Number.isInteger(e.target.valueAsNumber)) {
+                  onChange({
+                    ...card,
+                    guard: Math.max(0, Math.min(99, e.target.valueAsNumber)),
+                  });
+                }
+              }}
+            />
+          </div>
+        </div>
       </div>
     </>
   );
@@ -281,106 +287,51 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
     <>
       <div>
         <div>
-          Name:
-          <input
-            className="bg-gray-100 m-1"
-            value={card.name}
-            onChange={(e) => onChange({ ...card, name: e.target.value })}
-          />
-        </div>
-        <label>
-          Type:
-          <select
-            className="bg-gray-100 m-1"
-            value={card.cardType}
-            onChange={(e) => {
-              if (e.target.value == "character") {
-                onChange({ ...defaultCharacterCard, id: props.card.id });
-              }
-              if (e.target.value == "special") {
-                onChange({ ...defaultCard, id: props.card.id });
-              }
-              if (e.target.value == "ultra") {
-                onChange({ ...defaultUltraCard, id: props.card.id });
-              }
-              if (e.target.value == "extra") {
-                onChange({ ...defaultExtraCard, id: props.card.id });
-              }
-            }}
-          >
-            <option value="character">Character</option>
-            <option value="special">Special</option>
-            <option value="ultra">Ultra</option>
-            <option value="extra">Extra</option>
-          </select>
-        </label>
-        {/* Only for specials */}
-        Force Cost:
-        <input
-          type="number"
-          className="bg-gray-100 w-10 m-1"
-          value={card.resourceCost ?? ""}
-          onChange={(e) =>
-            onChange({
-              ...card,
-              resourceCost: Math.max(0, Math.min(9, e.target.valueAsNumber)),
-            })
-          }
-        />
-      </div>
-
-      {(card.cardType == "special" || card.cardType == "ultra") && (
-        <CardStatsEditor card={card} onChange={onChange} />
-      )}
-
-      {card.cardType == "special" && (
-        <>
-          <div>
-            Strike Text:
-            <div>
-              <textarea
-                className="bg-gray-100 m-1 h-30 w-100 resize-none"
-                value={card.cardText}
-                onChange={(e) =>
-                  onChange({ ...card, cardText: e.target.value })
-                }
-              />
-            </div>
-          </div>
-          <div>
-            Flavor Text:
-            <div>
-              <textarea
-                className="bg-gray-100 h-12 w-100 resize-none"
-                value={card.flavorText}
-                onChange={(e) =>
-                  onChange({ ...card, flavorText: e.target.value })
-                }
-              />
-            </div>
-          </div>
-          <div>
-            Continuous Boost:
+          <div className="flex items-center justify-center">
+            Name:
             <input
-              type="checkbox"
-              className="bg-gray-100 m-1"
-              checked={card.isContinuousBoost}
-              onChange={(e) =>
-                onChange({
-                  ...card,
-                  isContinuousBoost: e.target.checked,
-                })
-              }
-            ></input>
-            Boost Force Cost:
+              className="bg-gray-100 p-10 w-70"
+              value={card.name}
+              onChange={(e) => onChange({ ...card, name: e.target.value })}
+            />
+          </div>
+          <div className="flex items-center justify-center p-2">
+            <label>
+              Type:
+              <select
+                className="bg-gray-100 m-2 px-1 rounded-xs h-7"
+                value={card.cardType}
+                onChange={(e) => {
+                  if (e.target.value == "character") {
+                    onChange({ ...defaultCharacterCard, id: props.card.id });
+                  }
+                  if (e.target.value == "special") {
+                    onChange({ ...defaultCard, id: props.card.id });
+                  }
+                  if (e.target.value == "ultra") {
+                    onChange({ ...defaultUltraCard, id: props.card.id });
+                  }
+                  if (e.target.value == "extra") {
+                    onChange({ ...defaultExtraCard, id: props.card.id });
+                  }
+                }}
+              >
+                <option value="character">Character</option>
+                <option value="special">Special</option>
+                <option value="ultra">Ultra</option>
+                <option value="extra">Extra</option>
+              </select>
+            </label>
+            {/* Only for specials */}
+            Force Cost:
             <input
               type="number"
-              className="bg-gray-100 w-10 m-1"
-              value={card.boostForceCost}
+              className="bg-gray-100 w-10 m-2"
+              value={card.resourceCost ?? ""}
               onChange={(e) =>
                 onChange({
                   ...card,
-                  boostForceCost: Math.max(
+                  resourceCost: Math.max(
                     0,
                     Math.min(9, e.target.valueAsNumber),
                   ),
@@ -388,45 +339,97 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
               }
             />
           </div>
+        </div>
+
+        {(card.cardType == "special" || card.cardType == "ultra") && (
+          <CardStatsEditor card={card} onChange={onChange} />
+        )}
+
+        <div className="flex justify-center">Flavor Text:</div>
+        <div>
           <div>
-            Boost Name:
-            <input
-              className="bg-gray-100 m-1"
-              value={card.boostName}
-              onChange={(e) => onChange({ ...card, boostName: e.target.value })}
+            <CardTextArea
+              value={card.flavorText}
+              onChange={(e) => onChange({ ...card, flavorText: e })}
             />
           </div>
+        </div>
+        <div className="flex justify-center">Strike Text:</div>
+        <div>
           <div>
-            Boost Text:
-            <div>
-              <textarea
-                className="bg-gray-100 m-1 h-30 w-100 resize-none"
-                value={card.boostText}
-                onChange={(e) =>
-                  onChange({ ...card, boostText: e.target.value })
-                }
-              />
-            </div>
+            <CardTextArea
+              value={card.cardText}
+              isAbility
+              onChange={(e) => onChange({ ...card, cardText: e })}
+            />
           </div>
-        </>
-      )}
-      <div>
-        {/* 550x500 is the image window size */}
-        Card Image:
-        <ImageUpload
-          onUpload={(image) => onChange({ ...card, cardImage: image })}
-        />
-      </div>
-      <div>
-        Card Icon:
-        <ImageUpload
-          onUpload={(image) => onChange({ ...card, cardIcon: image })}
-        />
+        </div>
+
+        <div className="flex justify-center items-center mt-2">
+          Continuous Boost:
+          <input
+            type="checkbox"
+            className="bg-gray-100"
+            checked={card.isContinuousBoost}
+            onChange={(e) =>
+              onChange({
+                ...card,
+                isContinuousBoost: e.target.checked,
+              })
+            }
+          ></input>
+          Boost Force Cost:
+          <input
+            type="number"
+            className="bg-gray-100 w-10 m-1"
+            value={card.boostForceCost}
+            onChange={(e) =>
+              onChange({
+                ...card,
+                boostForceCost: Math.max(
+                  0,
+                  Math.min(9, e.target.valueAsNumber),
+                ),
+              })
+            }
+          />
+        </div>
+        <div className="flex justify-center items-center mt-1">
+          Boost Name:
+          <input
+            className="bg-gray-100 m-1 w-60"
+            value={card.boostName}
+            onChange={(e) => onChange({ ...card, boostName: e.target.value })}
+          />
+        </div>
+        <div className="flex justify-center items-center mt-2">Boost Text:</div>
+        <div>
+          <div>
+            <CardTextArea
+              value={card.boostText}
+              isBoost
+              onChange={(e) => onChange({ ...card, boostText: e })}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-center items-center mt-2">
+          {/* 550x500 is the image window size */}
+          Card Image:
+          <ImageUpload
+            onUpload={(image) => onChange({ ...card, cardImage: image })}
+          />
+        </div>
+        <div className="flex justify-center items-center">
+          Card Icon:
+          <ImageUpload
+            onUpload={(image) => onChange({ ...card, cardIcon: image })}
+          />
+        </div>
       </div>
     </>
   );
 }
-
 interface UltraCardEditorProps {
   card: Ultra;
   onChange: (newCard: Card) => void;
@@ -437,22 +440,21 @@ function UltraCardEditor(props: UltraCardEditorProps) {
   const onChange = props.onChange;
 
   return (
-    <>
+    <div>
       <div>
-        <div>
+        <div className="flex items-center justify-center">
           Name:
           <input
-            className="bg-gray-100 m-1"
+            className="bg-gray-100 p-10 w-70"
             value={card.name}
             onChange={(e) => onChange({ ...card, name: e.target.value })}
           />
         </div>
-
-        <div>
+        <div className="flex items-center justify-center p-2">
           <label>
             Type:
             <select
-              className="bg-gray-100 m-1"
+              className="bg-gray-100 m-2 px-1 rounded-xs h-7"
               value={card.cardType}
               onChange={(e) => {
                 if (e.target.value == "character") {
@@ -478,7 +480,7 @@ function UltraCardEditor(props: UltraCardEditorProps) {
           Gauge Cost:
           <input
             type="number"
-            className="bg-gray-100 w-10 m-1"
+            className="bg-gray-100 w-10 m-2"
             value={card.resourceCost ?? ""}
             onChange={(e) =>
               onChange({
@@ -492,95 +494,86 @@ function UltraCardEditor(props: UltraCardEditorProps) {
 
       {<CardStatsEditor card={card} onChange={onChange} />}
 
-      <>
-        <div>
-          Strike Text:
-          <div>
-            <textarea
-              className="bg-gray-100 m-1 h-30 w-100 resize-none"
-              value={card.cardText}
-              onChange={(e) => onChange({ ...card, cardText: e.target.value })}
-            />
-          </div>
-        </div>
-        <div>
-          Flavor Text:
-          <div>
-            <textarea
-              className="bg-gray-100 h-12 w-100 resize-none"
-              value={card.flavorText}
-              onChange={(e) =>
-                onChange({ ...card, flavorText: e.target.value })
-              }
-            />
-          </div>
-        </div>
-        <div>
-          Continuous Boost:
-          <input
-            type="checkbox"
-            className="bg-gray-100 m-1"
-            checked={card.isContinuousBoost}
-            onChange={(e) =>
-              onChange({
-                ...card,
-                isContinuousBoost: e.target.checked,
-              })
-            }
-          ></input>
-          Boost Force Cost:
-          <input
-            type="number"
-            className="bg-gray-100 w-10 m-1"
-            value={card.boostForceCost}
-            onChange={(e) =>
-              onChange({
-                ...card,
-                boostForceCost: Math.max(
-                  0,
-                  Math.min(9, e.target.valueAsNumber),
-                ),
-              })
-            }
-          />
-        </div>
-        <div>
-          Boost Name:
-          <input
-            className="bg-gray-100 m-1"
-            value={card.boostName}
-            onChange={(e) => onChange({ ...card, boostName: e.target.value })}
-          />
-        </div>
-        <div>
-          Boost Text:
-          <div>
-            <textarea
-              className="bg-gray-100 m-1 h-30 w-100 resize-none"
-              value={card.boostText}
-              onChange={(e) => onChange({ ...card, boostText: e.target.value })}
-            />
-          </div>
-        </div>
-      </>
-
+      <div className="flex justify-center">Flavor Text:</div>
       <div>
+        <div>
+          <CardTextArea
+            value={card.flavorText}
+            onChange={(e) => onChange({ ...card, flavorText: e })}
+          />
+        </div>
+      </div>
+      <div>
+        <div className="flex justify-center">Strike Text:</div>
+        <div>
+          <CardTextArea
+            value={card.cardText}
+            isAbility
+            onChange={(e) => onChange({ ...card, cardText: e })}
+          />
+        </div>
+      </div>
+      <div className="flex justify-center items-center mt-2">
+        Continuous Boost:
+        <input
+          type="checkbox"
+          className="bg-gray-100 m-1"
+          checked={card.isContinuousBoost}
+          onChange={(e) =>
+            onChange({
+              ...card,
+              isContinuousBoost: e.target.checked,
+            })
+          }
+        ></input>
+        Boost Force Cost:
+        <input
+          type="number"
+          className="bg-gray-100 w-10 m-1"
+          value={card.boostForceCost}
+          onChange={(e) =>
+            onChange({
+              ...card,
+              boostForceCost: Math.max(0, Math.min(9, e.target.valueAsNumber)),
+            })
+          }
+        />
+      </div>
+      <div className="flex justify-center items-center mt-1">
+        Boost Name:
+        <input
+          className="bg-gray-100 m-1 w-60"
+          value={card.boostName}
+          onChange={(e) => onChange({ ...card, boostName: e.target.value })}
+        />
+      </div>
+      <div>
+        <div className="flex justify-center items-center mt-2">Boost Text:</div>
+        <div>
+          <CardTextArea
+            value={card.boostText}
+            isBoost
+            onChange={(e) => onChange({ ...card, boostText: e })}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-center items-center mt-2">
         {/* 550x500 is the image window size */}
         Card Image:
         <ImageUpload
           onUpload={(image) => onChange({ ...card, cardImage: image })}
         />
       </div>
-      <div>
+      <div className="flex justify-center items-center">
         Card Icon:
         <ImageUpload
           onUpload={(image) => onChange({ ...card, cardIcon: image })}
         />
       </div>
-    </>
+    </div>
   );
 }
-
 interface CharacterCardEditorProps {
   card: Character;
   onChange: (newCard: Card) => void;
@@ -593,20 +586,20 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
   return (
     <>
       <div>
-        <div>
+        <div className="flex items-center justify-center">
           Name:
           <input
-            className="bg-gray-100 m-1"
+            className="bg-gray-100 p-10 w-70"
             value={card.name}
             onChange={(e) => onChange({ ...card, name: e.target.value })}
           />
         </div>
 
-        <div>
+        <div className="flex items-center justify-center p-2">
           <label>
             Type:
             <select
-              className="bg-gray-100 m-1"
+              className="bg-gray-100 m-2 px-1 rounded-xs h-7"
               value={card.cardType}
               onChange={(e) => {
                 if (e.target.value == "character") {
@@ -634,7 +627,7 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
               Exceed Cost:
               <input
                 type="number"
-                className="bg-gray-100 w-10 m-1"
+                className="bg-gray-100 w-10 m-2"
                 value={card.resourceCost ?? ""}
                 onChange={(e) =>
                   onChange({
@@ -651,29 +644,22 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
         </div>
       </div>
       <>
+        <div className="flex justify-center">Ability Text:</div>
         <div>
-          Ability Text:
-          <div>
-            <textarea
-              className="bg-gray-100 m-1 h-30 w-100 resize-none"
-              value={card.cardText}
-              onChange={(e) => onChange({ ...card, cardText: e.target.value })}
-            />
-          </div>
+          <CardTextArea
+            value={card.cardText}
+            isAbility
+            onChange={(e) => onChange({ ...card, cardText: e })}
+          />
         </div>
+        <div className="flex justify-center">Flavor Text:</div>
         <div>
-          Flavor Text:
-          <div>
-            <textarea
-              className="bg-gray-100 h-12 w-100 resize-none"
-              value={card.flavorText}
-              onChange={(e) =>
-                onChange({ ...card, flavorText: e.target.value })
-              }
-            />
-          </div>
+          <CardTextArea
+            value={card.flavorText}
+            onChange={(e) => onChange({ ...card, flavorText: e })}
+          />
         </div>
-        <div>
+        <div className="flex justify-center items-center">
           Exceed Frame:
           <input
             type="checkbox"
@@ -687,7 +673,7 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
             }
           ></input>
         </div>
-        <div>
+        <div className="flex justify-center items-center">
           {/* 620x620 is the image window size */}
           Card Image:
           <ImageUpload
@@ -711,20 +697,20 @@ function ExtraCardEditor(props: ExtraCardEditorProps) {
   return (
     <>
       <div>
-        <div>
+        <div className="flex items-center justify-center">
           Name:
           <input
-            className="bg-gray-100 m-1"
+            className="bg-gray-100 p-10 w-70"
             value={card.name}
             onChange={(e) => onChange({ ...card, name: e.target.value })}
           />
         </div>
 
-        <div>
+        <div className="flex items-center justify-center p-2">
           <label>
             Type:
             <select
-              className="bg-gray-100 m-1"
+              className="bg-gray-100 m-2 px-1 rounded-xs h-7"
               value={card.cardType}
               onChange={(e) => {
                 if (e.target.value == "character") {
@@ -754,29 +740,22 @@ function ExtraCardEditor(props: ExtraCardEditorProps) {
         </div>
       </div>
       <>
+        <div className="flex justify-center">Ability Text:</div>
         <div>
-          Ability Text:
-          <div>
-            <textarea
-              className="bg-gray-100 m-1 h-30 w-100 resize-none"
-              value={card.cardText}
-              onChange={(e) => onChange({ ...card, cardText: e.target.value })}
-            />
-          </div>
+          <CardTextArea
+            value={card.cardText}
+            isAbility
+            onChange={(e) => onChange({ ...card, cardText: e })}
+          />
         </div>
+        <div className="flex justify-center">Flavor Text:</div>
         <div>
-          Flavor Text:
-          <div>
-            <textarea
-              className="bg-gray-100 h-12 w-100 resize-none"
-              value={card.flavorText}
-              onChange={(e) =>
-                onChange({ ...card, flavorText: e.target.value })
-              }
-            />
-          </div>
+          <CardTextArea
+            value={card.flavorText}
+            onChange={(e) => onChange({ ...card, flavorText: e })}
+          />
         </div>
-        <div>
+        <div className="flex justify-center items-center">
           Exceed Frame:
           <input
             type="checkbox"
@@ -790,7 +769,7 @@ function ExtraCardEditor(props: ExtraCardEditorProps) {
             }
           ></input>
         </div>
-        <div>
+        <div className="flex justify-center items-center">
           {/* 620x620 is the image window size */}
           Card Image:
           <ImageUpload
@@ -799,6 +778,34 @@ function ExtraCardEditor(props: ExtraCardEditorProps) {
         </div>
       </>
     </>
+  );
+}
+
+interface CardTextAreaProps {
+  value: string;
+  onChange: (str: string) => void;
+  isAbility?: boolean;
+  isBoost?: boolean;
+  className?: string;
+}
+
+function CardTextArea(props: CardTextAreaProps) {
+  //const styles = `text-black px-1 rounded-sm w-100 resize-none bg-gray-100 ${props.isAbility ? "h-32" : ""}`;
+
+  const styles = clsx(
+    `flex px-1 rounded-sm w-100 resize-none`,
+    "text-black bg-gray-100",
+    { "h-32": props.isAbility },
+    { "h-19": props.isBoost },
+    props.className,
+  );
+
+  return (
+    <textarea
+      value={props.value}
+      onChange={(e) => props.onChange(e.target.value)}
+      className={styles}
+    />
   );
 }
 
@@ -823,7 +830,7 @@ function ImageUpload(props: ImageUploadProps) {
       type="file"
       accept="image/*"
       onChange={onChange}
-      className="block text-sm text-gray-600 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-gray-200 file:text-black"
+      className="text-sm cursor-pointer text-gray-600 file:py-1 file:px-2 file:rounded file:border-0 file:bg-gray-200 file:text-black"
     />
   );
 }

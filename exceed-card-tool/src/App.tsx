@@ -28,8 +28,13 @@ function App() {
   };
 
   const removeCard = (id: string) => {
-    if (id == curCardId) {
-      setCurCardId(null);
+    if (id === curCardId) {
+      const oldCardIndex = cards.findIndex((card) => card.id === id);
+      if (cards[oldCardIndex - 1]) {
+        setCurCardId(cards[oldCardIndex - 1].id);
+      } else {
+        setCurCardId(null);
+      }
     }
     setCards(cards.filter((card) => card.id != id));
   };
@@ -120,8 +125,9 @@ function App() {
   };
   return (
     <>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen gap-2">
         <Sidebar
+          className="self-stretch"
           cards={cards}
           curCardId={curCardId}
           onSelect={setCurCardId}
@@ -131,14 +137,22 @@ function App() {
           onSaveJSONClicked={saveJSON}
           onLoadJSONClicked={loadJSON}
         />
+
         {curCardId != null && (
           <>
-            <CardEditor
-              key={curCardId}
-              card={curCard}
-              onChange={updateCurCard}
-            />
-            <CardPreview card={curCard} />
+            <div className="grow"></div>
+            <div className="flex py-4">
+              <CardEditor
+                key={curCardId}
+                card={curCard}
+                onChange={updateCurCard}
+              />
+            </div>
+            <div className="grow"></div>
+            <div className="flex py-4">
+              <CardPreview card={curCard} />
+            </div>
+            <div className="grow"></div>
           </>
         )}
       </div>
