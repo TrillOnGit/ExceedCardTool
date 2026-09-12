@@ -3,7 +3,7 @@ import type { Card } from "./CardEditor";
 
 export interface SidebarProps {
   cards: Card[];
-  curCardId: string;
+  curCardId: string | null;
   className?: string;
   onSelect: (id: string) => void;
   onAddCardButtonClicked: () => void;
@@ -47,7 +47,9 @@ export function Sidebar(props: SidebarProps) {
       </div>
       <div className="flex justify-center">
         <button
-          onClick={() => props.onRemoveCardButtonClicked(props.curCardId)}
+          onClick={() =>
+            props.curCardId && props.onRemoveCardButtonClicked(props.curCardId)
+          }
           className="text-xs bg-red-100 text-black font-bold px-2 mt-2 py-1 cursor-pointer"
         >
           Delete Selected

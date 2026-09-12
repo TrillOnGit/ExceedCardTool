@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import blankIcon from "./assets/blankicon.png";
 
 export type Card = Special | Character | Ultra | Extra;
 
@@ -11,10 +10,10 @@ export interface Special {
   range: [number | undefined, number | undefined];
   power?: number;
   speed: number;
-  armor?: number;
-  guard?: number;
+  armor: number;
+  guard: number;
   cardText: string;
-  flavorText: string;
+  flavorText?: string;
   isContinuousBoost: boolean;
   boostName: string;
   boostText: string;
@@ -31,10 +30,10 @@ export interface Ultra {
   range: [number | undefined, number | undefined];
   power?: number;
   speed: number;
-  armor?: number;
-  guard?: number;
+  armor: number;
+  guard: number;
   cardText: string;
-  flavorText: string;
+  flavorText?: string;
   isContinuousBoost: boolean;
   boostName: string;
   boostText: string;
@@ -49,7 +48,7 @@ export interface Character {
   name: string;
   resourceCost: number;
   cardText: string;
-  flavorText: string;
+  flavorText?: string;
   cardImage?: string;
   isExceedSide: boolean;
 }
@@ -59,7 +58,7 @@ export interface Extra {
   id: string;
   name: string;
   cardText: string;
-  flavorText: string;
+  flavorText?: string;
   cardImage?: string;
   isExceedSide: boolean;
 }
@@ -75,13 +74,13 @@ export const defaultCard: Card = {
   armor: 0,
   guard: 0,
   cardText: "",
-  flavorText: "",
+  flavorText: undefined,
   isContinuousBoost: false,
   boostName: "",
   boostText: "",
   boostForceCost: 0,
-  cardImage: "./src/assets/redbackground.png",
-  cardIcon: blankIcon,
+  cardImage: undefined,
+  cardIcon: undefined,
 };
 
 export const defaultCharacterCard: Card = {
@@ -90,8 +89,8 @@ export const defaultCharacterCard: Card = {
   name: "Unnamed Character",
   resourceCost: 3,
   cardText: "",
-  flavorText: "",
-  cardImage: "./src/assets/redbackground.png",
+  flavorText: undefined,
+  cardImage: undefined,
   isExceedSide: false,
 };
 
@@ -106,13 +105,13 @@ export const defaultUltraCard: Card = {
   armor: 0,
   guard: 0,
   cardText: "",
-  flavorText: "",
+  flavorText: undefined,
   isContinuousBoost: false,
   boostName: "",
   boostText: "",
   boostForceCost: 0,
-  cardImage: "./src/assets/redbackground.png",
-  cardIcon: blankIcon,
+  cardImage: undefined,
+  cardIcon: undefined,
 };
 
 export const defaultExtraCard: Card = {
@@ -120,8 +119,8 @@ export const defaultExtraCard: Card = {
   id: crypto.randomUUID(),
   name: "Unnamed Extra",
   cardText: "",
-  flavorText: "",
-  cardImage: "./src/assets/redbackground.png",
+  flavorText: undefined,
+  cardImage: undefined,
   isExceedSide: false,
 };
 
@@ -345,14 +344,11 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
           <CardStatsEditor card={card} onChange={onChange} />
         )}
 
-        <div className="flex justify-center">Flavor Text:</div>
         <div>
-          <div>
-            <CardTextArea
-              value={card.flavorText}
-              onChange={(e) => onChange({ ...card, flavorText: e })}
-            />
-          </div>
+          <CardFlavorTextEditor
+            onChange={(e) => onChange({ ...card, flavorText: e })}
+            value={card.flavorText}
+          />
         </div>
         <div className="flex justify-center">Strike Text:</div>
         <div>
@@ -493,16 +489,13 @@ function UltraCardEditor(props: UltraCardEditorProps) {
       </div>
 
       {<CardStatsEditor card={card} onChange={onChange} />}
-
-      <div className="flex justify-center">Flavor Text:</div>
       <div>
-        <div>
-          <CardTextArea
-            value={card.flavorText}
-            onChange={(e) => onChange({ ...card, flavorText: e })}
-          />
-        </div>
+        <CardFlavorTextEditor
+          onChange={(e) => onChange({ ...card, flavorText: e })}
+          value={card.flavorText}
+        />
       </div>
+
       <div>
         <div className="flex justify-center">Strike Text:</div>
         <div>
@@ -644,19 +637,18 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
         </div>
       </div>
       <>
+        <div>
+          <CardFlavorTextEditor
+            onChange={(e) => onChange({ ...card, flavorText: e })}
+            value={card.flavorText}
+          />
+        </div>
         <div className="flex justify-center">Ability Text:</div>
         <div>
           <CardTextArea
             value={card.cardText}
             isAbility
             onChange={(e) => onChange({ ...card, cardText: e })}
-          />
-        </div>
-        <div className="flex justify-center">Flavor Text:</div>
-        <div>
-          <CardTextArea
-            value={card.flavorText}
-            onChange={(e) => onChange({ ...card, flavorText: e })}
           />
         </div>
         <div className="flex justify-center items-center">
@@ -740,19 +732,18 @@ function ExtraCardEditor(props: ExtraCardEditorProps) {
         </div>
       </div>
       <>
+        <div>
+          <CardFlavorTextEditor
+            onChange={(e) => onChange({ ...card, flavorText: e })}
+            value={card.flavorText}
+          />
+        </div>
         <div className="flex justify-center">Ability Text:</div>
         <div>
           <CardTextArea
             value={card.cardText}
             isAbility
             onChange={(e) => onChange({ ...card, cardText: e })}
-          />
-        </div>
-        <div className="flex justify-center">Flavor Text:</div>
-        <div>
-          <CardTextArea
-            value={card.flavorText}
-            onChange={(e) => onChange({ ...card, flavorText: e })}
           />
         </div>
         <div className="flex justify-center items-center">
@@ -832,5 +823,34 @@ function ImageUpload(props: ImageUploadProps) {
       onChange={onChange}
       className="text-sm cursor-pointer text-gray-600 file:py-1 file:px-2 file:rounded file:border-0 file:bg-gray-200 file:text-black"
     />
+  );
+}
+
+interface CardFlavorTextEditorProps {
+  value: string | undefined;
+  onChange: (flavorText: string | undefined) => void;
+}
+
+function CardFlavorTextEditor(props: CardFlavorTextEditorProps) {
+  return (
+    <>
+      <div className="flex justify-center">
+        Flavor Text:
+        <input
+          type="checkbox"
+          className=""
+          checked={props.value !== undefined}
+          onChange={(e) => props.onChange(e.target.checked ? "" : undefined)}
+        ></input>
+      </div>
+      {props.value !== undefined && (
+        <div>
+          <CardTextArea
+            value={props.value}
+            onChange={(e) => props.onChange(e)}
+          />
+        </div>
+      )}
+    </>
   );
 }

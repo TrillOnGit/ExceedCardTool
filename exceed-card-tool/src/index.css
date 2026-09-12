@@ -2,17 +2,17 @@
 
 @font-face {
   font-family: ShaXizor;
-  src: url("SHAXIZOR-fixed.ttf");
+  src: url("/SHAXIZOR-fixed.ttf");
 }
 
 @font-face {
     font-family: MKXTitle;
-    src: url("MKX Title.ttf");
+    src: url("/MKX Title.ttf");
 }
 
 @font-face {
     font-family: AlgrySansMed;
-    src: url("alegreya-sans/AlegreyaSans-Medium.otf");
+    src: url("/alegreya-sans/AlegreyaSans-Medium.otf");
 }
 
 @font-face {

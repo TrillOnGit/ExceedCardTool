@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { CardEditor, defaultCard, addNewCard, type Card } from "./CardEditor";
+import {
+  CardEditor,
+  defaultCharacterCard,
+  addNewCard,
+  type Card,
+} from "./CardEditor";
 import {
   CardPreview,
   drawCard,
@@ -9,8 +14,10 @@ import {
 import { Sidebar } from "./Sidebar";
 
 function App() {
-  const [cards, setCards] = useState<Card[]>([defaultCard]);
-  const [curCardId, setCurCardId] = useState<string | null>(defaultCard.id);
+  const [cards, setCards] = useState<Card[]>([defaultCharacterCard]);
+  const [curCardId, setCurCardId] = useState<string | null>(
+    defaultCharacterCard.id,
+  );
   const curCard = cards.find((c) => c.id == curCardId);
 
   const cardImageData = useCardImageData();
@@ -52,7 +59,7 @@ function App() {
     const extraFaceCards = cards.filter((card) => card.cardType === "extra");
     link.download = `${filename}.png`;
 
-    link.href = await generateCardsCanvas(deckCards);
+    link.href = (await generateCardsCanvas(deckCards)) ?? "";
     link.click();
 
     // Create and download images for each character card
@@ -62,7 +69,7 @@ function App() {
         ? `${downloadTarget.name}_Exceeded_Character_Card`
         : `${downloadTarget.name}_Character_Card`;
       link.download = `${filename}.png`;
-      link.href = await generateCardsCanvas([downloadTarget]);
+      link.href = (await generateCardsCanvas([downloadTarget])) ?? "";
       link.click();
     }
 
@@ -73,20 +80,28 @@ function App() {
         ? `${downloadTarget.name}_Exceeded_Extra_Card`
         : `${downloadTarget.name}_Extra_Card`;
       link.download = `${filename}.png`;
-      link.href = await generateCardsCanvas([downloadTarget]);
+      link.href = (await generateCardsCanvas([downloadTarget])) ?? "";
       link.click();
     }
   };
 
   const generateCardsCanvas = async (cardArray: Card[]) => {
     // width of 750px, height of 1024
-    const canvas = new OffscreenCanvas(750 * cardArray.length, 1024);
+    const canvasCardWidth = Math.ceil(cardArray.length / 2);
+    const canvas = new OffscreenCanvas(
+      750 * canvasCardWidth,
+      cardArray.length > 1 ? 2048 : 1024,
+    );
 
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      return;
+    }
     for (let i = 0; i < cardArray.length; i++) {
       const card = cardArray[i];
-      const xOffset = 750 * i;
+      const xOffset = 750 * (i >= canvasCardWidth ? i - canvasCardWidth : i);
+      const yOffset = i < 4 ? 0 : 1024;
       const userImage = await loadImage(card.cardImage);
       const userIcon = await loadImage(
         card.cardType == "special" || card.cardType == "ultra"
@@ -94,7 +109,7 @@ function App() {
           : undefined,
       );
       ctx.save();
-      ctx.translate(xOffset, 0);
+      ctx.translate(xOffset, yOffset);
       drawCard(ctx, card, userImage, userIcon, cardImageData);
       ctx.restore();
 
@@ -142,15 +157,17 @@ function App() {
           <>
             <div className="grow"></div>
             <div className="flex py-4">
-              <CardEditor
-                key={curCardId}
-                card={curCard}
-                onChange={updateCurCard}
-              />
+              {curCard && (
+                <CardEditor
+                  key={curCardId}
+                  card={curCard}
+                  onChange={updateCurCard}
+                />
+              )}
             </div>
             <div className="grow"></div>
             <div className="flex py-4">
-              <CardPreview card={curCard} />
+              {curCard && <CardPreview card={curCard} />}
             </div>
             <div className="grow"></div>
           </>
