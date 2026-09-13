@@ -46,9 +46,11 @@ function App() {
     setCards(cards.filter((card) => card.id != id));
   };
 
-  const downloadCardsImage = async () => {
+  const downloadCardsImages = async () => {
     const link = document.createElement("a");
-    let filename = "Specials_Cardsheet";
+    const characterName = getCharacterDeckName(cards);
+
+    let filename = `${characterName}_Specials_Cardsheet`;
     const deckCards = cards.filter(
       (card) => card.cardType === "special" || card.cardType === "ultra",
     );
@@ -58,10 +60,10 @@ function App() {
 
     const extraFaceCards = cards.filter((card) => card.cardType === "extra");
     link.download = `${filename}.png`;
-
-    link.href = (await generateCardsCanvas(deckCards)) ?? "";
-    link.click();
-
+    if (deckCards.length > 0) {
+      link.href = (await generateCardsCanvas(deckCards)) ?? "";
+      link.click();
+    }
     // Create and download images for each character card
     for (let i = 0; i < characterFaceCards.length; i++) {
       const downloadTarget = characterFaceCards[i];
@@ -83,6 +85,21 @@ function App() {
       link.href = (await generateCardsCanvas([downloadTarget])) ?? "";
       link.click();
     }
+  };
+
+  const getCharacterDeckName = (deck: Card[]): string => {
+    let name = ``;
+    const characters = deck.filter(
+      (card) => card.cardType === "character" && !card.isExceedSide,
+    );
+    for (let i = 0; i < characters.length; i++) {
+      name += `${characters[i].name}`;
+      if (i + 1 !== characters.length) {
+        name += `/`;
+      }
+    }
+
+    return name;
   };
 
   const generateCardsCanvas = async (cardArray: Card[]) => {
@@ -123,10 +140,9 @@ function App() {
     const jsonBlob = new Blob([json], { type: "application/json" });
     const jsonUrl = URL.createObjectURL(jsonBlob);
     const link = document.createElement("a");
-    link.download = `Exceed_JSON.json`;
+    link.download = `${getCharacterDeckName(cards)}_Exceed_JSON.json`;
     link.href = jsonUrl;
     link.click();
-    console.log("saveJSON triggered.");
   };
 
   const loadJSON = (cards: Card[]) => {
@@ -136,7 +152,6 @@ function App() {
     } else {
       setCurCardId(null);
     }
-    console.log("loadJSON Card Generation Attempted");
   };
   return (
     <>
@@ -148,7 +163,7 @@ function App() {
           onSelect={setCurCardId}
           onAddCardButtonClicked={addCard}
           onRemoveCardButtonClicked={removeCard}
-          onDownloadCardsImage={downloadCardsImage}
+          onDownloadCardsImage={downloadCardsImages}
           onSaveJSONClicked={saveJSON}
           onLoadJSONClicked={loadJSON}
         />
