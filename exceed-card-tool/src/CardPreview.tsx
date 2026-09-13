@@ -222,7 +222,7 @@ const parseFragments = (
         curSplit = split.slice(3, -4);
       } else if (split.startsWith("[f]") && split.endsWith("[/f]")) {
         // flavor text
-        curColor = "#ff0000";
+        curColor = "#b80000";
         curFont = boldItalicTextFont;
         curSplit = split.slice(3, -4);
       }
@@ -525,7 +525,9 @@ const drawTextAndFlavor = (
   flavX: number,
   flavY: number,
 ) => {
-  const hasFlavorText = card.flavorText !== "" || card.flavorText !== undefined;
+  const hasFlavorText = !(
+    card.flavorText === "" || card.flavorText === undefined
+  );
 
   if (card.cardType == "special" || card.cardType == "ultra") {
     // Draw the Flavor Text
@@ -539,7 +541,7 @@ const drawTextAndFlavor = (
       500,
       30,
       boldItalicTextFont,
-      "#ff0000",
+      "#b80000",
     );
 
     // Draw the Action Text
@@ -565,7 +567,7 @@ const drawTextAndFlavor = (
       572,
       30,
       boldItalicTextFont,
-      "#ff0000",
+      "#b80000",
     );
 
     // Draw the Ability Text
@@ -594,7 +596,7 @@ const drawTextAndFlavor = (
       575,
       30,
       boldItalicTextFont,
-      "#ff0000",
+      "#b80000",
     );
 
     // Draw the Ability Text
