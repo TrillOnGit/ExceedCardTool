@@ -172,7 +172,7 @@ function CardStatsEditor(props: CardStatsEditorProps) {
       <div className="flex justify-center items-center mt-6">
         Range:
         <input
-          className="bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
+          className="text-black bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
           type="number"
           value={card.range[0]}
           onChange={(e) =>
@@ -187,7 +187,7 @@ function CardStatsEditor(props: CardStatsEditorProps) {
         />
         ~
         <input
-          className="bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
+          className="text-black bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
           type="number"
           value={card.range[1]}
           onChange={(e) =>
@@ -206,7 +206,7 @@ function CardStatsEditor(props: CardStatsEditorProps) {
           <div className="flex justify-end items-center mx-1 mt-6">
             Power:
             <input
-              className="bg-[#E9E9E5] w-12 px-1 mx-1 rounded-xs"
+              className="text-black bg-[#E9E9E5] w-12 px-1 mx-1 rounded-xs"
               type="number"
               value={card.power ?? ""}
               onChange={(e) =>
@@ -220,7 +220,7 @@ function CardStatsEditor(props: CardStatsEditorProps) {
           <div className="flex justify-end items-center mx-1 mt-6">
             Speed:
             <input
-              className="bg-[#E9E9E5] w-12 px-1 mx-1 rounded-xs"
+              className="text-black bg-[#E9E9E5] w-12 px-1 mx-1 rounded-xs"
               type="number"
               value={card.speed}
               onChange={(e) => {
@@ -238,7 +238,7 @@ function CardStatsEditor(props: CardStatsEditorProps) {
           <div className="flex justify-end items-center mx-1 mt-6">
             Armor:
             <input
-              className="bg-[#E9E9E5] w-12 px-1 mx-1 rounded-xs"
+              className="text-black bg-[#E9E9E5] w-12 px-1 mx-1 rounded-xs"
               type="number"
               value={card.armor}
               onChange={(e) => {
@@ -254,7 +254,7 @@ function CardStatsEditor(props: CardStatsEditorProps) {
           <div className="flex justify-end items-center mx-1 mt-6">
             Guard:
             <input
-              className="bg-[#E9E9E5] w-12 px-1 mx-1 rounded-xs"
+              className="text-black bg-[#E9E9E5] w-12 px-1 mx-1 rounded-xs"
               type="number"
               value={card.guard}
               onChange={(e) => {
@@ -298,7 +298,7 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
             Force Cost:
             <input
               type="number"
-              className="bg-[#E9E9E5] w-10 mx-1 px-1 rounded-xs"
+              className="text-black bg-[#E9E9E5] w-10 mx-1 px-1 rounded-xs"
               value={card.resourceCost ?? ""}
               onChange={(e) =>
                 onChange({
@@ -357,7 +357,7 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
           Boost Force Cost:
           <input
             type="number"
-            className="bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
+            className="text-black bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
             value={card.boostForceCost}
             onChange={(e) =>
               onChange({
@@ -387,12 +387,14 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
           Card Image:
           <ImageUpload
             onUpload={(image) => onChange({ ...card, cardImage: image })}
+            onCancel={() => onChange({ ...card, cardImage: undefined })}
           />
         </div>
         <div className="flex justify-center items-center">
           Card Icon:
           <ImageUpload
             onUpload={(image) => onChange({ ...card, cardIcon: image })}
+            onCancel={() => onChange({ ...card, cardIcon: undefined })}
           />
         </div>
       </div>
@@ -422,7 +424,7 @@ function UltraCardEditor(props: UltraCardEditorProps) {
           Gauge Cost:
           <input
             type="number"
-            className="bg-[#E9E9E5] w-10 mx-1 px-1"
+            className="text-black bg-[#E9E9E5] w-10 mx-1 px-1"
             value={card.resourceCost ?? ""}
             onChange={(e) =>
               onChange({
@@ -476,7 +478,7 @@ function UltraCardEditor(props: UltraCardEditorProps) {
         Boost Force Cost:
         <input
           type="number"
-          className="bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
+          className="text-black bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
           value={card.boostForceCost}
           onChange={(e) =>
             onChange({
@@ -503,12 +505,14 @@ function UltraCardEditor(props: UltraCardEditorProps) {
         Card Image:
         <ImageUpload
           onUpload={(image) => onChange({ ...card, cardImage: image })}
+          onCancel={() => onChange({ ...card, cardImage: undefined })}
         />
       </div>
       <div className="flex justify-center items-center">
         Card Icon:
         <ImageUpload
           onUpload={(image) => onChange({ ...card, cardIcon: image })}
+          onCancel={() => onChange({ ...card, cardIcon: undefined })}
         />
       </div>
     </div>
@@ -540,7 +544,7 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
               Exceed Cost:
               <input
                 type="number"
-                className="bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
+                className="text-black bg-[#E9E9E5] w-12 mx-1 px-1 rounded-xs"
                 value={card.resourceCost ?? ""}
                 onChange={(e) =>
                   onChange({
@@ -590,6 +594,7 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
           Card Image:
           <ImageUpload
             onUpload={(image) => onChange({ ...card, cardImage: image })}
+            onCancel={() => onChange({ ...card, cardImage: undefined })}
           />
         </div>
       </>
@@ -651,6 +656,7 @@ function ExtraCardEditor(props: ExtraCardEditorProps) {
           Card Image:
           <ImageUpload
             onUpload={(image) => onChange({ ...card, cardImage: image })}
+            onCancel={() => onChange({ ...card, cardImage: undefined })}
           />
         </div>
       </>
@@ -688,6 +694,7 @@ function CardTextArea(props: CardTextAreaProps) {
 
 interface ImageUploadProps {
   onUpload: (imageData: string) => void;
+  onCancel: () => void;
 }
 
 function ImageUpload(props: ImageUploadProps) {
@@ -703,12 +710,21 @@ function ImageUpload(props: ImageUploadProps) {
   };
 
   return (
-    <input
-      type="file"
-      accept="image/*"
-      onChange={onChange}
-      className="text-sm cursor-pointer bg-[#E9E9E5] rounded-xs mx-1 mt-1 text-gray-600 file:py-1 file:px-2 file:rounded file:border-0 file:bg-gray-200 file:text-black"
-    />
+    <div className="flex justify-center items-center">
+      {" "}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={onChange}
+        className="flex text-sm cursor-pointer bg-[#E9E9E5] rounded-xs mx-1 mt-1 w-50 text-gray-600 file:py-1 file:px-2 file:rounded file:border-0 file:bg-gray-200 file:text-black"
+      />
+      <button
+        onClick={props.onCancel}
+        className="flex bg-[#FFE9E5] text-black font-bold px-2 py-[2px] mt-1 mx-2 rounded-xs"
+      >
+        X
+      </button>
+    </div>
   );
 }
 

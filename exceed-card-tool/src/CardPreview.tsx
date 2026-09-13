@@ -140,7 +140,7 @@ const drawIconClippedToCircle = (
 ) => {
   ctx.save();
   ctx.beginPath();
-  ctx.arc(x + 47, y + 45, 35, 0, Math.PI * 2);
+  ctx.arc(x + 45, y + 49, 35, 0, Math.PI * 2);
   ctx.clip();
   ctx.drawImage(image, x, y, tw, th);
   ctx.restore();
@@ -512,8 +512,7 @@ const drawCardIcon = (ctx: CardDrawingContext, iconImage: HTMLImageElement) => {
     const scale = targetWidth / iconImage.width;
     const targetHeight = iconImage.height * scale;
 
-    //ctx.drawImage(cardIcon, 629, 31, targetWidth, targetHeight);
-    drawIconClippedToCircle(ctx, iconImage, 626, 35, targetWidth, targetHeight);
+    drawIconClippedToCircle(ctx, iconImage, 627, 25, targetWidth, targetHeight);
   }
 };
 

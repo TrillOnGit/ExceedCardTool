@@ -130,13 +130,13 @@ const getCardBarColor = (card: Card): string => {
   const type = card.cardType;
   switch (type) {
     case "special":
-      return "bg-gray-300";
+      return "bg-slate-300";
     case "ultra":
-      return "bg-orange-200";
+      return "bg-orange-300";
     case "character":
       return card.isExceedSide
-        ? "bg-linear-to-r from bg-yellow-300 to-red-900"
-        : "bg-linear-to-t from bg-red-400 to-red-500 ";
+        ? "bg-linear-to-r from bg-yellow-300 to-blue-400"
+        : "bg-linear-to-t from bg-blue-300 to-blue-400 ";
     case "extra":
       return card.isExceedSide
         ? "bg-linear-to-r from bg-yellow-300 to-purple-400"
