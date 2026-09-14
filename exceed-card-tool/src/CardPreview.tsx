@@ -391,7 +391,9 @@ const drawRichText = (
   colorOverride = "#000000",
 ) => {
   const parsedFragments = parseFragments(text, font, colorOverride);
-  const fragmentLines = splitFragments(parsedFragments, "\n");
+  const fragmentLines = splitFragments(parsedFragments, "\n").filter(
+    (line) => !isBlankLine(line),
+  );
   const wrappedFragmentLines = fragmentLines.flatMap((l) =>
     wrapFragmentLine(ctx, l, textBoxWidth),
   );
@@ -403,6 +405,9 @@ const drawRichText = (
     lineHeight,
   );
 };
+
+const isBlankLine = (line: Fragment[]): boolean =>
+  line.every((fragment) => fragment.content.trim() === "");
 
 const useFontsReady = (fonts: string[]) => {
   const [areFontsReady, setAreFontsReady] = useState(false);
