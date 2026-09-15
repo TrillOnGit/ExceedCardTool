@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Card, Character, Special, Ultra } from "./CardEditor";
-import frameSrc from "./assets/trueemptycard.png";
+//Frames
+import specialFrameSrc from "./assets/trueemptycard.png";
 import ultraFrameSrc from "./assets/ultraemptycard.png";
 import charaFrameSrc from "./assets/characteremptycard.png";
 import exceedFrameSrc from "./assets/exceedcharaemptycard.png";
 import extraFrameSrc from "./assets/extraemptycard.png";
+import tfSpecialFrameSrc from "./assets/tfspecialframe.png";
+import tfUltraFrameSrc from "./assets/tfultraframe.png";
+import tfCharaFrameSrc from "./assets/tfcharacterframe.png";
+//BG
 import redBackground from "./assets/redbackground.png";
+//Small Images
 import blankIcon from "./assets/blankicon.png";
 import armPatchSrc from "./assets/armorpatch.png";
 import uArmPatchSrc from "./assets/uarmorpatch.png";
@@ -14,6 +20,8 @@ import uGrdPatchSrc from "./assets/uguardpatch.png";
 import contBoostIconSrc from "./assets/contboosticon.png";
 import uContBoostIconSrc from "./assets/ucontboosticon.png";
 import forceIconSrc from "./assets/forceicon.png";
+import canCritIconSrc from "./assets/cancriticon.png";
+import cancelIconSrc from "./assets/cancelicon.png";
 
 const nameFont = "56px ShaXizor";
 const statFont = "72px MKXTitle";
@@ -640,8 +648,18 @@ const drawBoostText = (
   ctx.textAlign = "center";
   ctx.letterSpacing = "0px";
   ctx.font = textFont;
-  ctx.fillStyle = "#000000";
-  drawRichText(ctx, card.boostText, x, y, 3, 550);
+  const boostColor = card.mechanic !== "transform" ? "#000000" : "#CCCCCC";
+  drawRichText(
+    ctx,
+    card.boostText,
+    x,
+    y,
+    3,
+    550,
+    undefined,
+    undefined,
+    boostColor,
+  );
 };
 
 const drawGaugeCost = (
@@ -652,6 +670,7 @@ const drawGaugeCost = (
 ) => {
   ctx.textAlign = "center";
   ctx.font = gaugeFont;
+  ctx.fillStyle = "#000000";
   ctx.fillText(`${valToTextMinZero(card.resourceCost)}`, x, y);
 };
 
@@ -689,20 +708,37 @@ const drawExceedCost = (
   ctx.fillText(`${valToTextMinZero(card.resourceCost)}`, x, y);
 };
 
+const drawCanCritIcon = (
+  ctx: CardDrawingContext,
+  x: number,
+  y: number,
+  cardImages: CardImageData,
+) => {
+  if (cardImages.canCritIcon) {
+    ctx.drawImage(cardImages.canCritIcon, x, y);
+  }
+};
+
 const getFrame = (card: Card, cardImageData: CardImageData) => {
   switch (card.cardType) {
     case "character":
       return card.isExceedSide
         ? cardImageData.exceedFrame
-        : cardImageData.charaFrame;
+        : card.mechanic === "transform"
+          ? cardImageData.tfCharaFrame
+          : cardImageData.charaFrame;
     case "ultra":
-      return cardImageData.ultraFrame;
+      return card.mechanic === "transform"
+        ? cardImageData.tfUltraFrame
+        : cardImageData.ultraFrame;
     case "extra":
       return card.isExceedSide
         ? cardImageData.exceedFrame
         : cardImageData.extraFrame;
     default:
-      return cardImageData.specialFrame;
+      return card.mechanic === "transform"
+        ? cardImageData.tfSpecialFrame
+        : cardImageData.specialFrame;
   }
 };
 
@@ -716,12 +752,17 @@ interface CardImageData {
   forceIcon: HTMLImageElement | null;
   defaultImage: HTMLImageElement | null;
   defaultIcon: HTMLImageElement | null;
+  canCritIcon: HTMLImageElement | null;
+  cancelIcon: HTMLImageElement | null;
   // Frames
   specialFrame: HTMLImageElement | null;
   ultraFrame: HTMLImageElement | null;
   charaFrame: HTMLImageElement | null;
   exceedFrame: HTMLImageElement | null;
   extraFrame: HTMLImageElement | null;
+  tfSpecialFrame: HTMLImageElement | null;
+  tfUltraFrame: HTMLImageElement | null;
+  tfCharaFrame: HTMLImageElement | null;
 }
 
 export const useCardImageData = (): CardImageData => {
@@ -732,13 +773,21 @@ export const useCardImageData = (): CardImageData => {
   const contBoostIcon = useImage(contBoostIconSrc);
   const uContBoostIcon = useImage(uContBoostIconSrc);
   const forceIcon = useImage(forceIconSrc);
-  const specialFrame = useImage(frameSrc);
+  //Mechanics
+  const canCritIcon = useImage(canCritIconSrc);
+  const cancelIcon = useImage(cancelIconSrc);
+
+  const defaultImage = useImage(redBackground);
+  const defaultIcon = useImage(blankIcon);
+  //frames
+  const specialFrame = useImage(specialFrameSrc);
   const ultraFrame = useImage(ultraFrameSrc);
   const charaFrame = useImage(charaFrameSrc);
   const exceedFrame = useImage(exceedFrameSrc);
   const extraFrame = useImage(extraFrameSrc);
-  const defaultImage = useImage(redBackground);
-  const defaultIcon = useImage(blankIcon);
+  const tfSpecialFrame = useImage(tfSpecialFrameSrc);
+  const tfUltraFrame = useImage(tfUltraFrameSrc);
+  const tfCharaFrame = useImage(tfCharaFrameSrc);
 
   const imageData = useMemo(
     () => ({
@@ -756,6 +805,11 @@ export const useCardImageData = (): CardImageData => {
       extraFrame,
       defaultImage,
       defaultIcon,
+      tfSpecialFrame,
+      tfUltraFrame,
+      tfCharaFrame,
+      canCritIcon,
+      cancelIcon,
     }),
     [
       armPatch,
@@ -772,6 +826,11 @@ export const useCardImageData = (): CardImageData => {
       extraFrame,
       defaultImage,
       defaultIcon,
+      tfSpecialFrame,
+      tfUltraFrame,
+      tfCharaFrame,
+      canCritIcon,
+      cancelIcon,
     ],
   );
 
@@ -800,14 +859,20 @@ export const drawCard = async (
   // Draw shared elements for special and ultra
   if (card.cardType == "special" || card.cardType == "ultra") {
     // Draw the Patches and stat text
-    drawStats(ctx, card, cardImageData); // <- Bad?
+    drawStats(ctx, card, cardImageData);
     // Bottom left boost costs
-    drawBoostForceCost(ctx, card, 70, 959);
+    if (card.mechanic !== "transform") drawBoostForceCost(ctx, card, 70, 959);
+
+    const contBoostOffset =
+      card.isContinuousBoost && card.mechanic === "cancel" ? 60 : 0;
+    if (card.mechanic === "cancel" && cardImageData.cancelIcon) {
+      ctx.drawImage(cardImageData.cancelIcon, 26 + contBoostOffset, 813);
+    }
 
     // Draw the Name Text
     drawName(ctx, card, 95, 89);
 
-    drawBoostName(ctx, card, 93, 857);
+    drawBoostName(ctx, card, 93 + contBoostOffset, 857);
     drawBoostText(ctx, card, 395, 928);
 
     drawTextAndFlavor(ctx, card, 375, 737, 375, 680);
@@ -829,8 +894,11 @@ export const drawCard = async (
 
     // Only card type with exceed cost
     if (!card.isExceedSide) {
-      drawExceedCost(ctx, card, 698, 901);
+      drawExceedCost(ctx, card, 701, 900);
     }
+
+    if (card.mechanic === "critical")
+      drawCanCritIcon(ctx, 627, 735, cardImageData);
 
     drawTextAndFlavor(ctx, card, 367, 902, 370, 857);
   }

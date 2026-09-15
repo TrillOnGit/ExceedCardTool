@@ -2,10 +2,23 @@ import clsx from "clsx";
 
 export type Card = Special | Character | Ultra | Extra;
 
+export type Mechanic = DeckMechanic | CharacterMechanic;
+
+enum DeckMechanic {
+  transform = "transform",
+  cancel = "cancel",
+}
+
+enum CharacterMechanic {
+  transform = "transform",
+  critical = "critical",
+}
+
 export interface Special {
   cardType: "special";
   id: string;
   name: string;
+  mechanic?: DeckMechanic;
   resourceCost: number;
   range: [number | undefined, number | undefined];
   power?: number;
@@ -26,6 +39,7 @@ export interface Ultra {
   cardType: "ultra";
   id: string;
   name: string;
+  mechanic?: DeckMechanic;
   resourceCost: number;
   range: [number | undefined, number | undefined];
   power?: number;
@@ -46,6 +60,7 @@ export interface Character {
   cardType: "character";
   id: string;
   name: string;
+  mechanic?: CharacterMechanic;
   resourceCost: number;
   cardText: string;
   flavorText?: string;
@@ -57,6 +72,7 @@ export interface Extra {
   cardType: "extra";
   id: string;
   name: string;
+  mechanic?: CharacterMechanic;
   cardText: string;
   flavorText?: string;
   cardImage?: string;
@@ -381,7 +397,9 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
             />
           </div>
         </div>
-
+        <div className="flex justify-center items-center mt-4">
+          <DeckMechanicInput card={card} onChange={onChange} />
+        </div>
         <div className="flex justify-center items-center mt-4">
           {/* 550x500 is the image window size */}
           Card Image:
@@ -499,7 +517,9 @@ function UltraCardEditor(props: UltraCardEditorProps) {
           />
         </div>
       </div>
-
+      <div className="flex justify-center items-center mt-4">
+        <DeckMechanicInput card={card} onChange={onChange} />
+      </div>
       <div className="flex justify-center items-center mt-4">
         {/* 550x500 is the image window size */}
         Card Image:
@@ -588,6 +608,9 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
               })
             }
           ></input>
+        </div>
+        <div className="flex justify-center items-center mt-4">
+          <CharacterMechanicInput card={card} onChange={onChange} />
         </div>
         <div className="flex justify-center items-center mt-4">
           {/* 620x620 is the image window size */}
@@ -806,6 +829,80 @@ function CardTypeInput(props: CardTypeInputProps) {
         <option value="special">Special</option>
         <option value="ultra">Ultra</option>
         <option value="extra">Extra</option>
+      </select>
+    </label>
+  );
+}
+
+interface CharacterMechanicInputProps {
+  card: Character | Extra;
+  onChange: (newCard: Card) => void;
+}
+
+function CharacterMechanicInput(props: CharacterMechanicInputProps) {
+  const card = props.card;
+  const mechanics = Object.values(CharacterMechanic);
+
+  return (
+    <label>
+      Mechanic:
+      <select
+        className="bg-[#E9E9E5] mx-1 mr-4 px-1 rounded-xs py-[2px]"
+        value={card.mechanic ?? ""}
+        onChange={(e) => {
+          if (e.target.value === "") {
+            props.onChange({ ...card, mechanic: undefined });
+          } else {
+            props.onChange({
+              ...card,
+              mechanic: e.target.value as CharacterMechanic,
+            });
+          }
+        }}
+      >
+        <option value="">None</option>
+        {mechanics.map((mech) => (
+          <option value={mech}>
+            {mech.charAt(0).toUpperCase() + mech.slice(1)}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+interface DeckMechanicInputProps {
+  card: Ultra | Special;
+  onChange: (newCard: Card) => void;
+}
+
+function DeckMechanicInput(props: DeckMechanicInputProps) {
+  const card = props.card;
+  const mechanics = Object.values(DeckMechanic);
+
+  return (
+    <label>
+      Mechanic:
+      <select
+        className="bg-[#E9E9E5] mx-1 mr-4 px-1 rounded-xs py-[2px]"
+        value={card.mechanic ?? ""}
+        onChange={(e) => {
+          if (e.target.value === "") {
+            props.onChange({ ...card, mechanic: undefined });
+          } else {
+            props.onChange({
+              ...card,
+              mechanic: e.target.value as DeckMechanic,
+            });
+          }
+        }}
+      >
+        <option value="">None</option>
+        {mechanics.map((mech) => (
+          <option value={mech}>
+            {mech.charAt(0).toUpperCase() + mech.slice(1)}
+          </option>
+        ))}
       </select>
     </label>
   );
