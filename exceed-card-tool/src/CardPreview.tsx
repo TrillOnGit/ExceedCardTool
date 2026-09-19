@@ -33,6 +33,7 @@ const boldTextFont = "26px AlgrySansBold";
 const italicTextFont = "26px AlgrySansItalic";
 const boldItalicTextFont = "26px AlgrySansBoldItalic";
 const boostNameFont = "28px ShaXizor";
+const creditFont = "17px AlgrySansMed";
 
 const isInteger = (val: number | undefined): val is number =>
   val !== undefined && Number.isInteger(val);
@@ -495,6 +496,23 @@ const drawName = (
   ctx.fillText(card.name, x, y);
 };
 
+const drawCredit = (
+  ctx: CardDrawingContext,
+  card: Card,
+  x: number,
+  y: number,
+) => {
+  ctx.textAlign = "left";
+  ctx.letterSpacing = "1px";
+  ctx.font = creditFont;
+  ctx.fillStyle =
+    (card.cardType === "character" || card.cardType === "extra") &&
+    card.isExceedSide
+      ? "#ffffff"
+      : "#cccccc";
+  ctx.fillText(card.credit ?? "", x, y);
+};
+
 const drawCardImage = (
   ctx: CardDrawingContext,
   card: Card,
@@ -898,7 +916,7 @@ export const drawCard = async (
     }
 
     if (card.mechanic === "critical")
-      drawCanCritIcon(ctx, 627, 735, cardImageData);
+      drawCanCritIcon(ctx, 627, 733, cardImageData);
 
     drawTextAndFlavor(ctx, card, 367, 902, 370, 857);
   }
@@ -908,4 +926,10 @@ export const drawCard = async (
 
     drawTextAndFlavor(ctx, card, 375, 902, 375, 857);
   }
+
+  const barPosition =
+    card.cardType === "character" || card.cardType === "extra"
+      ? [86, 809]
+      : [130, 628];
+  if (card.credit) drawCredit(ctx, card, barPosition[0], barPosition[1]);
 };

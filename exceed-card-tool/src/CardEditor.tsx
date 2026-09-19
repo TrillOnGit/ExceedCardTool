@@ -33,6 +33,7 @@ export interface Special {
   boostForceCost: number;
   cardImage?: string;
   cardIcon?: string;
+  credit?: string;
 }
 
 export interface Ultra {
@@ -54,6 +55,7 @@ export interface Ultra {
   boostForceCost: number;
   cardImage?: string;
   cardIcon?: string;
+  credit?: string;
 }
 
 export interface Character {
@@ -66,6 +68,7 @@ export interface Character {
   flavorText?: string;
   cardImage?: string;
   isExceedSide: boolean;
+  credit?: string;
 }
 
 export interface Extra {
@@ -77,6 +80,7 @@ export interface Extra {
   flavorText?: string;
   cardImage?: string;
   isExceedSide: boolean;
+  credit?: string;
 }
 
 export const defaultCard: Card = {
@@ -415,6 +419,12 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
             onCancel={() => onChange({ ...card, cardIcon: undefined })}
           />
         </div>
+        <div>
+          <CreditArea
+            value={card.credit ?? ""}
+            onChange={(str) => onChange({ ...card, credit: str })}
+          />
+        </div>
       </div>
     </>
   );
@@ -535,6 +545,12 @@ function UltraCardEditor(props: UltraCardEditorProps) {
           onCancel={() => onChange({ ...card, cardIcon: undefined })}
         />
       </div>
+      <div>
+        <CreditArea
+          value={card.credit ?? ""}
+          onChange={(str) => onChange({ ...card, credit: str })}
+        />
+      </div>
     </div>
   );
 }
@@ -620,6 +636,12 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
             onCancel={() => onChange({ ...card, cardImage: undefined })}
           />
         </div>
+        <div>
+          <CreditArea
+            value={card.credit ?? ""}
+            onChange={(str) => onChange({ ...card, credit: str })}
+          />
+        </div>
       </>
     </>
   );
@@ -680,6 +702,12 @@ function ExtraCardEditor(props: ExtraCardEditorProps) {
           <ImageUpload
             onUpload={(image) => onChange({ ...card, cardImage: image })}
             onCancel={() => onChange({ ...card, cardImage: undefined })}
+          />
+        </div>
+        <div>
+          <CreditArea
+            value={card.credit ?? ""}
+            onChange={(str) => onChange({ ...card, credit: str })}
           />
         </div>
       </>
@@ -789,6 +817,24 @@ function CardNameArea(props: CardNameAreaProps) {
   return (
     <div className="flex items-center justify-center mt-3">
       Name:
+      <input
+        className="text-black px-1 w-70 mx-1 rounded-xs bg-[#E9E9E5]"
+        value={props.value}
+        onChange={(e) => props.onChange(e.target.value)}
+      />
+    </div>
+  );
+}
+
+interface CreditAreaProps {
+  value: string;
+  onChange: (str: string) => void;
+}
+
+function CreditArea(props: CreditAreaProps) {
+  return (
+    <div className="flex items-center justify-center mt-1">
+      Credit:
       <input
         className="text-black px-1 w-70 mx-1 rounded-xs bg-[#E9E9E5]"
         value={props.value}
