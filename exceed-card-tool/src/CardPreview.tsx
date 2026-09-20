@@ -22,6 +22,9 @@ import uContBoostIconSrc from "./assets/ucontboosticon.png";
 import forceIconSrc from "./assets/forceicon.png";
 import canCritIconSrc from "./assets/cancriticon.png";
 import cancelIconSrc from "./assets/cancelicon.png";
+import critIconSrc from "./assets/criticon.png";
+import type { CardDrawingContext } from "./types";
+import { drawRichText, type TextIcons } from "./richText";
 
 const nameFont = "56px ShaXizor";
 const statFont = "72px MKXTitle";
@@ -37,9 +40,6 @@ const creditFont = "17px AlgrySansMed";
 
 const isInteger = (val: number | undefined): val is number =>
   val !== undefined && Number.isInteger(val);
-
-type CardDrawingContext =
-  CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
 interface CardPreviewProps {
   card: Card;
@@ -182,242 +182,6 @@ export const loadImage = async (src: string | undefined) =>
         img.onerror = () => reject(img);
       });
 
-// A piece of rich text with a uniform style
-interface Fragment {
-  // A font representing the style
-  font: string;
-  // The text
-  content: string;
-  // The color
-  color: string;
-}
-
-// Take a string of text with bbcode-esque formatting, e.g. "hello [b]bold world[/b]", and split it inito
-// rich text fragments
-const parseFragments = (
-  text: string,
-  font = textFont,
-  colorOverride = "#000000",
-): Fragment[] => {
-  return text
-    .split(/(\[[birgyupf]{1,2}\].*?\[\/[birgyupf]{1,2}\])/gs)
-    .map((split) => {
-      let curFont = font;
-      let curColor = colorOverride;
-      let curSplit = split;
-      if (split.startsWith("[b]") && split.endsWith("[/b]")) {
-        curFont = boldTextFont;
-        curSplit = split.slice(3, -4);
-      } else if (split.startsWith("[i]") && split.endsWith("[/i]")) {
-        curFont = italicTextFont;
-        curSplit = split.slice(3, -4);
-      } else if (split.startsWith("[bi]") && split.endsWith("[/bi]")) {
-        curFont = boldItalicTextFont;
-        curSplit = split.slice(4, -5);
-      } else if (split.startsWith("[r]") && split.endsWith("[/r]")) {
-        curColor = "#b80000";
-        curSplit = split.slice(3, -4);
-      } else if (split.startsWith("[g]") && split.endsWith("[/g]")) {
-        curColor = "#127a00";
-        curSplit = split.slice(3, -4);
-      } else if (split.startsWith("[y]") && split.endsWith("[/y]")) {
-        curColor = "#877400";
-        curSplit = split.slice(3, -4);
-      } else if (split.startsWith("[p]") && split.endsWith("[/p]")) {
-        curColor = "#7d2e81";
-        curSplit = split.slice(3, -4);
-      } else if (split.startsWith("[u]") && split.endsWith("[/u]")) {
-        curColor = "#0069ff";
-        curSplit = split.slice(3, -4);
-      } else if (split.startsWith("[f]") && split.endsWith("[/f]")) {
-        // flavor text
-        curColor = "#b80000";
-        curFont = boldItalicTextFont;
-        curSplit = split.slice(3, -4);
-      }
-      return { font: curFont, content: curSplit, color: curColor };
-    });
-};
-
-// Take a fragment of text and split it on `splitter` into several fragments,
-// each with the same style as the original one
-const splitFragment = (fragment: Fragment, splitter: string): Fragment[] =>
-  fragment.content.split(splitter).map((s) => ({ ...fragment, content: s }));
-
-// Take a list of fragments and split it into multiple fragment lists,
-// where any fragments containing `splitter` are separated into multiple fragments
-const splitFragments = (
-  fragments: Fragment[],
-  splitter: string,
-): Fragment[][] => {
-  const outputFragmentSets = [];
-
-  let currentFragmentSet: Fragment[] = [];
-  for (const fragment of fragments) {
-    const [firstSplit, ...restSplits] = splitFragment(fragment, splitter);
-
-    // The first split goes into the current fragment list,
-    // any subsequent splits get their own list
-    currentFragmentSet.push(firstSplit);
-    for (const split of restSplits) {
-      outputFragmentSets.push(currentFragmentSet);
-      currentFragmentSet = [split];
-    }
-  }
-
-  // Any leftover fragments go in
-  outputFragmentSets.push(currentFragmentSet);
-
-  return outputFragmentSets;
-};
-
-const wrapFragmentLine = (
-  ctx: CardDrawingContext,
-  line: Fragment[],
-  textBoxWidth: number,
-): Fragment[][] => {
-  const words = splitFragments(line, " ");
-  const lines: Fragment[][] = [];
-
-  if (getFragmentLineWidth(ctx, line) < textBoxWidth) {
-    lines.push(line);
-    return lines;
-  }
-
-  let currentLine: Fragment[] = [];
-
-  for (const word of words) {
-    // Build a new candidate line by sticking a space on the end of the current
-    // line, and then appending the next word
-
-    // First, stick the space onto the last fragment
-    const candidateLinePrefix = [...currentLine];
-    if (candidateLinePrefix.length > 0) {
-      const lastFragment = candidateLinePrefix[candidateLinePrefix.length - 1];
-      candidateLinePrefix[candidateLinePrefix.length - 1] = {
-        ...lastFragment,
-        content: `${lastFragment.content} `,
-      };
-    }
-    // Now add the new word and merge it into the existing fragments if possible
-    const candidateLine = collapseFragments([...candidateLinePrefix, ...word]);
-
-    if (getFragmentLineWidth(ctx, candidateLine) < textBoxWidth) {
-      currentLine = candidateLine;
-    } else {
-      lines.push(currentLine);
-      currentLine = word;
-    }
-  }
-
-  lines.push(currentLine);
-
-  return lines;
-};
-
-// Merge fragments that have the same style together
-const collapseFragments = (fragments: Fragment[]): Fragment[] => {
-  const outputFragments: Fragment[] = [];
-  for (const fragment of fragments) {
-    if (
-      outputFragments.length == 0 ||
-      outputFragments[outputFragments.length - 1].font != fragment.font ||
-      outputFragments[outputFragments.length - 1].color != fragment.color
-    ) {
-      outputFragments.push(fragment);
-    } else {
-      outputFragments[outputFragments.length - 1] = {
-        ...fragment,
-        content: `${outputFragments[outputFragments.length - 1].content}${fragment.content}`,
-      };
-    }
-  }
-  return outputFragments;
-};
-
-const measureFragment = (ctx: CardDrawingContext, fragment: Fragment) => {
-  ctx.font = fragment.font;
-  return ctx.measureText(fragment.content);
-};
-
-const getFragmentLineWidth = (ctx: CardDrawingContext, line: Fragment[]) =>
-  line.map((f) => measureFragment(ctx, f).width).reduce((a, b) => a + b, 0);
-
-const drawFragment = (
-  ctx: CardDrawingContext,
-  fragment: Fragment,
-  leftX: number,
-  y: number,
-) => {
-  ctx.font = fragment.font;
-  ctx.textAlign = "left";
-  ctx.fillStyle = fragment.color;
-  ctx.fillText(fragment.content, leftX, y);
-};
-
-const drawFragmentLine = (
-  ctx: CardDrawingContext,
-  line: Fragment[],
-  x: number,
-  y: number,
-) => {
-  const totalWidth = getFragmentLineWidth(ctx, line);
-
-  let cursorX = x - totalWidth / 2;
-  for (const fragment of line) {
-    const width = measureFragment(ctx, fragment).width;
-    drawFragment(ctx, fragment, cursorX, y);
-    cursorX += width;
-  }
-};
-
-// Takes an array of lines and draws them on a canvas, centered on (x,y)
-// Each line is an array of fragments
-const drawFragmentLines = (
-  ctx: CardDrawingContext,
-  lines: Fragment[][],
-  x: number,
-  y: number,
-  lineHeight: number,
-) => {
-  const totalHeight = lines.length * lineHeight;
-  const startY = y - totalHeight / 2 + lineHeight / 2;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    drawFragmentLine(ctx, line, x, startY + i * lineHeight);
-  }
-};
-
-const drawRichText = (
-  ctx: CardDrawingContext,
-  text: string,
-  x: number,
-  y: number,
-  maximumLineCount: number,
-  textBoxWidth: number,
-  lineHeight = 35,
-  font = textFont,
-  colorOverride = "#000000",
-) => {
-  const parsedFragments = parseFragments(text, font, colorOverride);
-  const fragmentLines = splitFragments(parsedFragments, "\n").filter(
-    (line) => !isBlankLine(line),
-  );
-  const wrappedFragmentLines = fragmentLines.flatMap((l) =>
-    wrapFragmentLine(ctx, l, textBoxWidth),
-  );
-  drawFragmentLines(
-    ctx,
-    wrappedFragmentLines.slice(0, maximumLineCount),
-    x,
-    y,
-    lineHeight,
-  );
-};
-
-const isBlankLine = (line: Fragment[]): boolean =>
-  line.every((fragment) => fragment.content.trim() === "");
-
 const useFontsReady = (fonts: string[]) => {
   const [areFontsReady, setAreFontsReady] = useState(false);
 
@@ -549,64 +313,40 @@ const drawCardIcon = (ctx: CardDrawingContext, iconImage: HTMLImageElement) => {
 
 const drawTextAndFlavor = (
   ctx: CardDrawingContext,
+  imageData: CardImageData,
   card: Card,
   textX: number,
   textY: number,
-  flavX: number,
-  flavY: number,
 ) => {
-  const hasFlavorText = !(
-    card.flavorText === "" || card.flavorText === undefined
-  );
-
   if (card.cardType == "special" || card.cardType == "ultra") {
-    // Draw the Flavor Text
     ctx.letterSpacing = "0px";
-    drawRichText(
-      ctx,
-      card.flavorText ? card.flavorText : "",
-      flavX,
-      flavY,
-      2,
-      500,
-      30,
-      boldItalicTextFont,
-      "#b80000",
-    );
 
     // Draw the Action Text
     drawRichText(
       ctx,
-      card.cardText,
+      imageData,
+      card.flavorText
+        ? `[f]${card.flavorText}[/f]\n${card.cardText.trim()}`
+        : card.cardText,
       textX,
-      hasFlavorText ? textY + 33 : textY,
-      hasFlavorText ? 3 : 5,
+      textY,
+      5,
       500,
     );
   }
 
   if (card.cardType == "character") {
-    // Draw the Flavor Text
+    // Draw the Ability Text
     ctx.letterSpacing = "0px";
     drawRichText(
       ctx,
-      card.flavorText ? card.flavorText : "",
-      flavX,
-      flavY,
-      2,
-      572,
-      30,
-      boldItalicTextFont,
-      "#b80000",
-    );
-
-    // Draw the Ability Text
-    drawRichText(
-      ctx,
-      card.cardText,
+      imageData,
+      card.flavorText
+        ? `[f]${card.flavorText}[/f]\n${card.cardText.trim()}`
+        : card.cardText,
       textX,
-      hasFlavorText ? textY + 33 : textY,
-      hasFlavorText ? 3 : 5,
+      textY,
+      5,
       572,
       29,
       characterTextFont,
@@ -617,25 +357,17 @@ const drawTextAndFlavor = (
   if (card.cardType == "extra") {
     // Draw Flavor Text
     ctx.letterSpacing = "0px";
-    drawRichText(
-      ctx,
-      card.flavorText ? card.flavorText : "",
-      flavX,
-      flavY,
-      2,
-      575,
-      30,
-      boldItalicTextFont,
-      "#b80000",
-    );
 
     // Draw the Ability Text
     drawRichText(
       ctx,
-      card.cardText,
+      imageData,
+      card.flavorText
+        ? `[f]${card.flavorText}[/f]\n${card.cardText.trim()}`
+        : card.cardText,
       textX,
-      hasFlavorText ? textY + 33 : textY,
-      hasFlavorText ? 3 : 5,
+      textY,
+      5,
       608,
       29,
       characterTextFont,
@@ -659,6 +391,7 @@ const drawBoostName = (
 
 const drawBoostText = (
   ctx: CardDrawingContext,
+  imageData: CardImageData,
   card: Ultra | Special,
   x: number,
   y: number,
@@ -669,6 +402,7 @@ const drawBoostText = (
   const boostColor = card.mechanic !== "transform" ? "#000000" : "#CCCCCC";
   drawRichText(
     ctx,
+    imageData,
     card.boostText,
     x,
     y,
@@ -760,7 +494,7 @@ const getFrame = (card: Card, cardImageData: CardImageData) => {
   }
 };
 
-interface CardImageData {
+interface CardImageData extends TextIcons {
   armPatch: HTMLImageElement | null;
   grdPatch: HTMLImageElement | null;
   uArmPatch: HTMLImageElement | null;
@@ -807,6 +541,9 @@ export const useCardImageData = (): CardImageData => {
   const tfUltraFrame = useImage(tfUltraFrameSrc);
   const tfCharaFrame = useImage(tfCharaFrameSrc);
 
+  // text icons
+  const critIcon = useImage(critIconSrc);
+
   const imageData = useMemo(
     () => ({
       armPatch,
@@ -828,6 +565,7 @@ export const useCardImageData = (): CardImageData => {
       tfCharaFrame,
       canCritIcon,
       cancelIcon,
+      critIcon,
     }),
     [
       armPatch,
@@ -849,6 +587,7 @@ export const useCardImageData = (): CardImageData => {
       tfCharaFrame,
       canCritIcon,
       cancelIcon,
+      critIcon,
     ],
   );
 
@@ -891,9 +630,9 @@ export const drawCard = async (
     drawName(ctx, card, 95, 89);
 
     drawBoostName(ctx, card, 93 + contBoostOffset, 857);
-    drawBoostText(ctx, card, 395, 928);
+    drawBoostText(ctx, cardImageData, card, 395, 928);
 
-    drawTextAndFlavor(ctx, card, 375, 737, 375, 680);
+    drawTextAndFlavor(ctx, cardImageData, card, 375, 737);
   }
 
   if (card.cardType == "special") {
@@ -918,13 +657,13 @@ export const drawCard = async (
     if (card.mechanic === "critical")
       drawCanCritIcon(ctx, 627, 733, cardImageData);
 
-    drawTextAndFlavor(ctx, card, 367, 902, 370, 857);
+    drawTextAndFlavor(ctx, cardImageData, card, 367, 902);
   }
 
   if (card.cardType == "extra") {
     drawName(ctx, card, 375, 793);
 
-    drawTextAndFlavor(ctx, card, 375, 902, 375, 857);
+    drawTextAndFlavor(ctx, cardImageData, card, 375, 902);
   }
 
   const barPosition =

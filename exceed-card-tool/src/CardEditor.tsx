@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useState } from "react";
 
 export type Card = Special | Character | Ultra | Extra;
 
@@ -343,7 +344,9 @@ function SpecialCardEditor(props: SpecialCardEditorProps) {
             value={card.flavorText}
           />
         </div>
-        <div className="flex justify-center mt-4">Strike Text:</div>
+        <div className="flex-col justify-center mt-6">
+          <AbilityWRichTextButton title={"Strike Text:"} />
+        </div>
         <div>
           <div>
             <CardTextArea
@@ -473,7 +476,9 @@ function UltraCardEditor(props: UltraCardEditorProps) {
       </div>
 
       <div>
-        <div className="flex justify-center mt-4">Strike Text:</div>
+        <div className="flex-col justify-center mt-6">
+          <AbilityWRichTextButton title={"Strike Text:"} />
+        </div>
         <div>
           <CardTextArea
             value={card.cardText}
@@ -603,7 +608,9 @@ function CharacterCardEditor(props: CharacterCardEditorProps) {
             value={card.flavorText}
           />
         </div>
-        <div className="flex justify-center mt-6">Ability Text:</div>
+        <div className="flex-col justify-center mt-6">
+          <AbilityWRichTextButton title={"Character Text:"} />
+        </div>
         <div>
           <CardTextArea
             value={card.cardText}
@@ -674,7 +681,9 @@ function ExtraCardEditor(props: ExtraCardEditorProps) {
             value={card.flavorText}
           />
         </div>
-        <div className="flex justify-center mt-6">Ability Text:</div>
+        <div className="flex-col justify-center mt-6">
+          <AbilityWRichTextButton title={"Ability Text:"} />
+        </div>
         <div>
           <CardTextArea
             value={card.cardText}
@@ -951,5 +960,100 @@ function DeckMechanicInput(props: DeckMechanicInputProps) {
         ))}
       </select>
     </label>
+  );
+}
+
+interface AbilityWRichTextButtonProps {
+  title: string;
+}
+
+function AbilityWRichTextButton(props: AbilityWRichTextButtonProps) {
+  const [state, setState] = useState(false);
+
+  return (
+    <>
+      <div className="flex justify-center items-center mt-6">
+        {props.title}{" "}
+        <button
+          className="px-1 py-[1px] mx-1 rounded-sm text-xs bg-[#E9E9E5] text-gray-800 cursor-pointer"
+          onClick={() => setState(!state)}
+        >
+          Rich Text Tags
+        </button>
+      </div>
+      <div className="flex justify-center items-center">
+        {state && (
+          <div className="w-100 min-w-0 mx-auto mt-1 text-sm text-black bg-[#E9E9E5] rounded-sm px-2 py-1">
+            <div className="mb-1">
+              Wrap your text in tags to style it. Every tag needs a matching
+              closing tag, as listed below. Currently these don't work well in
+              flavor text.
+            </div>
+            <div className="flex mb-2">
+              <div className="flex-1">
+                <div className="font-bold mb-1">Formatting</div>
+                <div>
+                  <span className="font-mono">[b]</span>
+                  <span className="font-bold">bold</span>
+                  <span className="font-mono">[/b]</span>
+                </div>
+                <div>
+                  <span className="font-mono">[i]</span>
+                  <span className="italic">italic</span>
+                  <span className="font-mono">[/i]</span>
+                </div>
+                <div>
+                  <span className="font-mono">[bi]</span>
+                  <span className="font-bold italic">bold italic</span>
+                  <span className="font-mono">[/bi]</span>
+                </div>
+                <div>
+                  <span className="font-mono">[f]</span>
+                  <span className="font-bold italic text-[#b80000]">
+                    flavor style
+                  </span>
+                  <span className="font-mono">[/f]</span>
+                </div>
+                <div>
+                  <span className="font-mono">[c]</span>
+                  Critical Icon
+                  <span className="font-mono">[/c]</span>
+                </div>
+              </div>
+
+              <div className="flex-1">
+                <div className="font-bold mb-1">Colors</div>
+
+                <div>
+                  <span className="font-mono">[r]</span>
+                  <span className="text-[#b80000]">red</span>
+                  <span className="font-mono">[/g]</span>
+                </div>
+                <div>
+                  <span className="font-mono">[g]</span>
+                  <span className="text-[#127a00]">green</span>
+                  <span className="font-mono">[/g]</span>
+                </div>
+                <div>
+                  <span className="font-mono">[y]</span>
+                  <span className="text-[#877400]">yellow</span>
+                  <span className="font-mono">[/y]</span>
+                </div>
+                <div>
+                  <span className="font-mono">[p]</span>
+                  <span className="text-[#7d2e81]">purple</span>
+                  <span className="font-mono">[/p]</span>
+                </div>
+                <div>
+                  <span className="font-mono">[u]</span>
+                  <span className="text-[#0069ff]">blue</span>
+                  <span className="font-mono">[/u]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

@@ -15,70 +15,79 @@ export interface SidebarProps {
 
 export function Sidebar(props: SidebarProps) {
   return (
-    <div className={clsx("w-58 border-r p-2 flex flex-col", props.className)}>
-      <h1 className="flex justify-center items-center font-bold">
-        Decklist
-        <button
-          onClick={props.onAddCardButtonClicked}
-          className="text-xs bg-green-100 text-black px-2 m-2 py-1 cursor-pointer"
-        >
-          Add Card
-        </button>
-      </h1>
-      <div className="bg-gray-600 text-white px-2 py-1 w-full">
-        {props.cards.map((card) => (
-          <>
-            <button
-              key={card.id}
-              onClick={() => props.onSelect(card.id)}
-              className={`py-1 my-[2.5px] cursor-pointer w-full ${
-                card.id == props.curCardId
-                  ? "bg-gray-900 text-white"
-                  : `${getCardBarColor(card)} text-black`
-              }`}
-            >
-              {card.name || "Unnamed"}
-              {(card.cardType === "extra" || card.cardType === "character") &&
-                card.isExceedSide &&
-                " (EX)"}
-            </button>
-          </>
-        ))}
-      </div>
-      <div className="flex justify-center">
-        <button
-          onClick={() =>
-            props.curCardId && props.onRemoveCardButtonClicked(props.curCardId)
-          }
-          className="text-xs bg-red-100 text-black font-bold px-2 mt-2 py-1 cursor-pointer"
-        >
-          Delete Selected
-        </button>
-      </div>
-      {/* Page bottom */}
-      <div className="grow"></div>
-      <div className="border-t mt-auto flex flex-col">
-        <button
-          onClick={props.onDownloadCardsImage}
-          className="text-xs rounded-xs bg-gray-200 text-black my-2 px-2 py-1 cursor-pointer"
-        >
-          Export All Images
-        </button>
-        <div className="flex justify-center mb-1">Save/Load Deck JSON:</div>
-        <div className="flex justify-center items-center">
-          <div>
-            <button
-              onClick={props.onSaveJSONClicked}
-              className="text-xs bg-gray-200 rounded-xs text-black m-1 px-2 py-1 grow cursor-pointer"
-            >
-              Save
-            </button>
+    <div
+      className={clsx(
+        "w-58 sticky top-0 border-r p-2 flex flex-col h-screen",
+        props.className,
+      )}
+    >
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col">
+        <h1 className="flex shrink-0 justify-center items-center font-bold">
+          Decklist
+          <button
+            onClick={props.onAddCardButtonClicked}
+            className="text-xs bg-green-100 text-black px-2 m-2 py-1 cursor-pointer"
+          >
+            Add Card
+          </button>
+        </h1>
+        <div className="max-h-[75vh] overflow-y-auto bg-gray-600 text-white px-2 py-1 w-full">
+          {props.cards.map((card) => (
+            <>
+              <button
+                key={card.id}
+                onClick={() => props.onSelect(card.id)}
+                className={`py-1 my-[2px] cursor-pointer w-full ${
+                  card.id == props.curCardId
+                    ? "bg-gray-900 text-white"
+                    : `${getCardBarColor(card)} text-black`
+                }`}
+              >
+                {card.name || "Unnamed"}
+                {(card.cardType === "extra" || card.cardType === "character") &&
+                  card.isExceedSide &&
+                  " (EX)"}
+              </button>
+            </>
+          ))}
+        </div>
+        <div className="flex justify-center">
+          <button
+            onClick={() =>
+              props.curCardId &&
+              props.onRemoveCardButtonClicked(props.curCardId)
+            }
+            className="text-xs bg-red-100 text-black font-bold px-2 mt-2 py-1 cursor-pointer"
+          >
+            Delete Selected
+          </button>
+        </div>
+        {/* Page bottom */}
+        <div className="border-t shrink-0 justify-center p-1 mt-auto flex flex-col">
+          <button
+            onClick={props.onDownloadCardsImage}
+            className="text-xs rounded-xs bg-gray-200 text-black my-2 px-2 py-1 cursor-pointer"
+          >
+            Export All Images
+          </button>
+          <div className="flex justify-center text-center mb-1">
+            Save/Load Deck JSON:
+          </div>
+          <div className="flex justify-center items-center">
+            <div>
+              <button
+                onClick={props.onSaveJSONClicked}
+                className="text-xs bg-gray-200 rounded-xs text-black m-1 px-2 py-1 grow cursor-pointer"
+              >
+                Save
+              </button>
 
-            <JsonUpload
-              onUpload={(cards) => {
-                props.onLoadJSONClicked(cards);
-              }}
-            />
+              <JsonUpload
+                onUpload={(cards) => {
+                  props.onLoadJSONClicked(cards);
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -112,7 +121,7 @@ function JsonUpload(props: JSONUploadProps) {
   };
 
   return (
-    <label className="text-xs rounded-xs bg-gray-200 text-black m-1 px-2 py-[4.5px] cursor-pointer flex-1">
+    <label className="text-xs rounded-xs bg-gray-200 text-black m-1 px-2 py-1 cursor-pointer flex-1">
       Load
       <input
         type="file"

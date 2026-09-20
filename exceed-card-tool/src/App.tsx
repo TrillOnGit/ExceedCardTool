@@ -181,7 +181,7 @@ function App() {
               )}
             </div>
             <div className="grow"></div>
-            <div className="flex py-4">
+            <div className="flex py-4 lg:sticky lg:top-4 lg:self-start">
               {curCard && <CardPreview card={curCard} />}
             </div>
             <div className="grow"></div>
