@@ -780,7 +780,7 @@ function ImageUpload(props: ImageUploadProps) {
       />
       <button
         onClick={props.onCancel}
-        className="flex bg-[#FFE9E5] text-black font-bold px-2 py-[2px] mt-1 mx-2 rounded-xs"
+        className="flex bg-[#FFE9E5] cursor-pointer text-black font-bold px-2 py-[2px] mt-1 mx-2 rounded-xs"
       >
         X
       </button>
