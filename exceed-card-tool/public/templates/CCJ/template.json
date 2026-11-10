@@ -1,0 +1,329 @@
+[
+    {
+        "__name": "Card Image Location",
+        "type": "Image",
+        "imagePath": "CARD_IMAGE",
+        "position": [136, 124],
+        "width": 579,
+        "height": 477,
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Default Card Image",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/DefaultArt.png",
+        "position": [136, 124],
+        "width": 579,
+        "height": 477,
+        "conditionals": [["NO_IMAGE", "SPECIAL"], ["NO_IMAGE", "ULTRA"]]
+    },
+    {
+        "__name": "Special Frame",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/SpecialFrame.png",
+        "position": [0, 0],
+        "conditionals": [["SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Frame",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/UltraFrame.png",
+        "position": [0, 0],
+        "conditionals": [["ULTRA"]]
+    },
+    {
+        "__name": "Boost Panel",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/BoostPanel.png",
+        "position": [0, 825],
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Boost Panel (Continuous)",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/ContinuousBoostPanel.png",
+        "position": [0, 825],
+        "conditionals": [["IS_CONTINUOUS_BOOST", "SPECIAL"], ["IS_CONTINUOUS_BOOST", "ULTRA"]]
+    },
+    {
+        "__name": "Boost Panel (Transform)",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/TransformBoostPanel.png",
+        "position": [0, 825],
+        "conditionals": [["MECHANIC_TRANSFORM", "SPECIAL"], ["MECHANIC_TRANSFORM", "ULTRA"]]
+    },
+    {
+        "__name": "Boost Force Cost Zone",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/BoostForceCostZone.png",
+        "position": [31, 880],
+        "conditionals": [["NON_TRANSFORM", "SPECIAL"], ["NON_TRANSFORM", "ULTRA"]]
+    },
+    {
+        "__name": "Boost Zone (Transform)",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/TransformBoostZone.png",
+        "position": [31, 880],
+        "conditionals": [["MECHANIC_TRANSFORM", "SPECIAL"], ["MECHANIC_TRANSFORM", "ULTRA"]]
+    },
+    {
+        "__name": "Continuous Boost Icon",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/ContinuousBoostIcon.png",
+        "position": [131, 884],
+        "conditionals": [["IS_CONTINUOUS_BOOST", "SPECIAL"], ["IS_CONTINUOUS_BOOST", "ULTRA"]]
+    },
+    {
+        "__name": "Special Cancel Icon",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/CancelIcon.png",
+        "position": [21, 821],
+        "conditionals": [["MECHANIC_CANCEL", "SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Cancel Icon",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/UltraCancelIcon.png",
+        "position": [21, 821],
+        "conditionals": [["MECHANIC_CANCEL", "ULTRA"]]
+    },
+    {
+        "__name": "Special Range/Power/Speed Patches",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/StatsRangePowerSpeed.png",
+        "position": [15, 123],
+        "conditionals": [["SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Range/Power/Speed Patches",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/UltraStatsRangePowerSpeed.png",
+        "position": [15, 123],
+        "conditionals": [["ULTRA"]]
+    },
+    {
+        "__name": "Special Armor Patch",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/ArmorPatch.png",
+        "position": [15, 421],
+        "conditionals": [["ARMOR_DISPLAYED", "SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Armor Patch",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/UltraArmorPatch.png",
+        "position": [15, 421],
+        "conditionals": [["ARMOR_DISPLAYED", "ULTRA"]]
+    },
+    {
+        "__name": "Special Guard Patch",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/GuardPatch.png",
+        "position": [15, 522],
+        "conditionals": [["GUARD_DISPLAYED", "SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Guard Patch",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/UltraGuardPatch.png",
+        "position": [15, 522],
+        "conditionals": [["GUARD_DISPLAYED", "ULTRA"]]
+    },
+    {
+        "__name": "User-Submitted Icon",
+        "type": "Image",
+        "imagePath": "CARD_ICON",
+        "position": [640, 23],
+        "width": 86,
+        "height": 86,
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Default Icon",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/DefaultIcon.png",
+        "position": [640, 23],
+        "conditionals": [["NO_ICON", "SPECIAL"], ["NO_ICON", "ULTRA"]]
+    },
+    {
+        "__name": "Special Portrait Frame",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/SpecialPortraitFrame.png",
+        "position": [628, 11],
+        "conditionals": [["SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Portrait Frame",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/UltraPortraitFrame.png",
+        "position": [628, 11],
+        "conditionals": [["ULTRA"]]
+    },
+    {
+        "__name": "Force Cost Icon",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/ForceCostIcon.png",
+        "position": [18, 8],
+        "conditionals": [["HAS_FORCE_COST", "SPECIAL"]]
+    },
+    {
+        "__name": "Gauge Cost Icon",
+        "type": "Image",
+        "imagePath": "/templates/CCJ/images/GaugeCostIcon.png",
+        "position": [18, 8],
+        "conditionals": [["ULTRA"]]
+    },
+    {
+        "__name": "Range",
+        "dataSource": "range",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "58px",
+        "position": [106, 183],
+        "alignment": "center",
+        "color": "#000000",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Power",
+        "dataSource": "power",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "58px",
+        "position": [96, 282],
+        "alignment": "center",
+        "color": "#000000",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Speed",
+        "dataSource": "speed",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "58px",
+        "position": [95, 382],
+        "alignment": "center",
+        "color": "#000000",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Armor",
+        "dataSource": "armor",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "58px",
+        "position": [95, 482],
+        "alignment": "center",
+        "color": "#000000",
+        "conditionals": [["ARMOR_DISPLAYED", "SPECIAL"], ["ARMOR_DISPLAYED", "ULTRA"]]
+    },
+    {
+        "__name": "Guard",
+        "dataSource": "guard",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "58px",
+        "position": [95, 581],
+        "alignment": "center",
+        "color": "#000000",
+        "conditionals": [["GUARD_DISPLAYED", "SPECIAL"], ["GUARD_DISPLAYED", "ULTRA"]]
+    },
+    {
+        "__name": "Deck Card Name",
+        "dataSource": "name",
+        "type": "Text",
+        "fontPath": "ShaXizor",
+        "fontSize": "62px",
+        "position": [366, 92],
+        "alignment": "center",
+        "color": "#F2EAFF",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Boost Name",
+        "dataSource": "boostName",
+        "type": "Text",
+        "fontPath": "ShaXizor",
+        "fontSize": "32px",
+        "position": [231, 864],
+        "alignment": "center",
+        "color": "#F9D9FF",
+        "conditionals": [["HAS_BOOST"]],
+        "positionModifiers": [
+            {
+                "conditionals": [["MECHANIC_CANCEL"]],
+                "offset": [30, 0]
+            }
+        ]
+    },
+    {
+        "__name": "Boost Text",
+        "dataSource": "boostText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "24px",
+        "position": [450, 904],
+        "alignment": "center",
+        "maxWidth": 537,
+        "maxLines": 4,
+        "color": "#F2EAFF",
+        "conditionals": [["HAS_BOOST"]]
+    },
+    {
+        "__name": "Deck Text",
+        "dataSource": "cardText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "24px",
+        "position": [378, 675],
+        "alignment": "center",
+        "maxWidth": 620,
+        "maxLines": 5,
+        "color": "#F2EAFF",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Boost Force Cost",
+        "dataSource": "boostForceCost",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "58px",
+        "position": [93, 964],
+        "alignment": "center",
+        "color": "#F9D9FF",
+        "conditionals": [["NON_TRANSFORM", "SPECIAL"], ["NON_TRANSFORM", "ULTRA"]]
+    },
+    {
+        "__name": "Force Cost",
+        "dataSource": "resourceCost",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "58px",
+        "position": [73, 85],
+        "alignment": "center",
+        "color": "#E6E6E6",
+        "conditionals": [["HAS_FORCE_COST", "SPECIAL"]]
+    },
+    {
+        "__name": "Gauge Cost",
+        "dataSource": "resourceCost",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "58px",
+        "position": [73, 85],
+        "alignment": "center",
+        "color": "#E6E6E6",
+        "conditionals": [["ULTRA"]]
+    },
+    {
+        "__name": "Deck Credit",
+        "dataSource": "credit",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "24px",
+        "position": [729, 621],
+        "alignment": "right",
+        "color": "#F9D9FF",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    }
+]

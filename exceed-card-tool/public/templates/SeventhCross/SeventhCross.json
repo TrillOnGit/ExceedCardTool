@@ -1,0 +1,425 @@
+[
+    {
+        "__name": "Card Image Location",
+        "type": "Image",
+        "imagePath": "CARD_IMAGE",
+        "position": [146, 100],
+        "width": 536,
+        "height": 536,
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Card Image Location (Character + Extra)",
+        "type": "Image",
+        "imagePath": "CARD_IMAGE",
+        "position": [60, 108],
+        "width": 622,
+        "height": 622,
+        "conditionals": [["CHARACTER"], ["EXTRA"]]
+    },
+    {
+        "__name": "Default Card Image (Deck)",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/RedBackground.png",
+        "position": [146, 100],
+        "width": 536,
+        "height": 536,
+        "conditionals": [["NO_IMAGE", "SPECIAL"], ["NO_IMAGE", "ULTRA"]]
+    },
+    {
+        "__name": "Default Card Image (Character/Extra)",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/RedBackground.png",
+        "position": [60, 108],
+        "width": 622,
+        "height": 800,
+        "conditionals": [["NO_IMAGE", "CHARACTER"], ["NO_IMAGE", "EXTRA"]]
+    },
+    {
+        "__name": "User-Submitted Icon",
+        "type": "Image",
+        "imagePath": "CARD_ICON",
+        "position": [640, 45],
+        "width": 64,
+        "height": 64,
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Default Icon",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/NoIcon.png",
+        "position": [627, 30],
+        "conditionals": [["NO_ICON", "SPECIAL"], ["NO_ICON", "ULTRA"]]
+    },
+    {
+        "__name": "Special Frame",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/SpecialFrame.png",
+        "position": [0, 0],
+        "conditionals": [["SPECIAL"]]
+    },
+    {
+        "__name": "Special Frame (Transform)",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/TFSpecialFrame.png",
+        "position": [0, 0],
+        "conditionals": [["SPECIAL", "MECHANIC_TRANSFORM"]]
+    },
+    {
+        "__name": "Ultra Frame",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/UltraFrame.png",
+        "position": [0, 0],
+        "conditionals": [["ULTRA"]]
+    },
+    {
+        "__name": "Ultra Frame (Transform)",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/TFUltraFrame.png",
+        "position": [0, 0],
+        "conditionals": [["ULTRA", "MECHANIC_TRANSFORM"]]
+    },
+    {
+        "__name": "Character Frame",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/CharacterFrame.png",
+        "position": [0, 0],
+        "conditionals": [["CHARACTER"]]
+    },
+    {
+        "__name": "Character Frame (Transform)",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/TFCharacterFrame.png",
+        "position": [0, 0],
+        "conditionals": [["CHARACTER", "MECHANIC_TRANSFORM"]]
+    },
+    {
+        "__name": "Extra Frame",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/ExtraFrame.png",
+        "position": [0, 0],
+        "conditionals": [["EXTRA"]]
+    },
+    {
+        "__name": "Character/Extra Frame (Exceed)",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/ExceedFrame.png",
+        "position": [0, 0],
+        "conditionals": [["CHARACTER", "EXCEED"], ["EXTRA", "EXCEED"]]
+    },
+    {
+        "__name": "Special Armor Patch",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/ArmorPatch.png",
+        "position": [22, 430],
+        "conditionals": [["ARMOR_DISPLAYED", "SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Armor Patch",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/UltraArmorPatch.png",
+        "position": [22, 430],
+        "conditionals": [["ARMOR_DISPLAYED", "ULTRA"]]
+    },
+    {
+        "__name": "Special Guard Patch",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/GuardPatch.png",
+        "position": [22, 532],
+        "conditionals": [["GUARD_DISPLAYED", "SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Guard Patch",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/UltraGuardPatch.png",
+        "position": [22, 532],
+        "conditionals": [["GUARD_DISPLAYED", "ULTRA"]]
+    },
+    {
+        "__name": "Continuous Boost Icon",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/ContinuousBoostIcon.png",
+        "position": [12, 809],
+        "conditionals": [["IS_CONTINUOUS_BOOST", "SPECIAL"]]
+    },
+    {
+        "__name": "Ultra Continuous Boost Icon",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/UltraContinuousBoostIcon.png",
+        "position": [12, 809],
+        "conditionals": [["IS_CONTINUOUS_BOOST", "ULTRA"]]
+    },
+    {
+        "__name": "Force Icon",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/ForceIcon.png",
+        "position": [4, 8],
+        "conditionals": [["HAS_FORCE_COST", "SPECIAL"]]
+    },
+    {
+        "__name": "Cancel Icon",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/CancelIcon.png",
+        "position": [26, 813],
+        "conditionals": [["MECHANIC_CANCEL"]],
+        "positionModifiers": [
+            {
+                "conditionals": [["IS_CONTINUOUS_BOOST"]],
+                "offset": [60, 0]
+            }
+        ]
+    },
+    {
+        "__name": "Range",
+        "dataSource": "range",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "72px",
+        "position": [125, 183],
+        "alignment": "center",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Power",
+        "dataSource": "power",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "72px",
+        "position": [116, 293],
+        "alignment": "center",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Speed",
+        "dataSource": "speed",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "72px",
+        "position": [110, 400],
+        "alignment": "center",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Armor",
+        "dataSource": "armor",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "72px",
+        "position": [100, 507],
+        "alignment": "center",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Guard",
+        "dataSource": "guard",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "72px",
+        "position": [100, 614],
+        "alignment": "center",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Deck Card Name",
+        "dataSource": "name",
+        "type": "Text",
+        "fontPath": "ShaXizor",
+        "fontSize": "56px",
+        "position": [95, 89],
+        "alignment": "left",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Character/Extra Card Name",
+        "dataSource": "name",
+        "type": "Text",
+        "fontPath": "ShaXizor",
+        "fontSize": "56px",
+        "position": [375, 793],
+        "alignment": "center",
+        "conditionals": [["CHARACTER"], ["EXTRA"]]
+    },
+    {
+        "__name": "Boost Name",
+        "dataSource": "boostName",
+        "type": "Text",
+        "fontPath": "ShaXizor",
+        "fontSize": "28px",
+        "position": [93, 857],
+        "conditionals": [["HAS_BOOST"]],
+        "color": "#CCCCCC",
+        "positionModifiers": [
+            {
+                "conditionals": [["IS_CONTINUOUS_BOOST", "MECHANIC_CANCEL"]],
+                "offset": [60, 0]
+            }
+        ]
+    },
+    {
+        "__name": "Boost Text",
+        "dataSource": "boostText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "32px",
+        "position": [395, 928],
+        "alignment": "center",
+        "maxWidth": 550,
+        "maxLines": 3,
+        "conditionals": [["HAS_BOOST", "NON_TRANSFORM"]]
+    },
+        {
+        "__name": "White Boost Text",
+        "dataSource": "boostText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "32px",
+        "position": [395, 928],
+        "alignment": "center",
+        "maxWidth": 550,
+        "maxLines": 3,
+        "color": "#CCCCCC",
+        "conditionals": [["MECHANIC_TRANSFORM","HAS_BOOST"]]
+    },
+    {
+        "__name": "Deck Text",
+        "dataSource": "cardText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "32px",
+        "position": [375, 737],
+        "alignment": "center",
+        "maxWidth": 500,
+        "maxLines": 5,
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Character Text",
+        "dataSource": "cardText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "29px",
+        "position": [367, 902],
+        "alignment": "center",
+        "maxWidth": 572,
+        "maxLines": 5,
+        "conditionals": [["CHARACTER", "NON_EXCEED"]]
+    },
+    {
+        "__name": "Exceed Character Text",
+        "dataSource": "cardText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "29px",
+        "position": [367, 902],
+        "alignment": "center",
+        "maxWidth": 572,
+        "maxLines": 5,
+        "color":"#CCCCCC",
+        "conditionals": [["CHARACTER", "EXCEED"]]
+    },
+    {
+        "__name": "Extra Text",
+        "dataSource": "cardText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "29px",
+        "position": [375, 902],
+        "alignment": "center",
+        "maxWidth": 608,
+        "maxLines": 5,
+        "conditionals": [["EXTRA", "NON_EXCEED"]]
+    },
+    {
+        "__name": "Exceed Extra Text (White)",
+        "dataSource": "cardText",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "29px",
+        "position": [375, 902],
+        "alignment": "center",
+        "maxWidth": 608,
+        "maxLines": 5,
+        "color":"#CCCCCC",
+        "conditionals": [["EXTRA", "EXCEED"]]
+    },
+    {
+        "__name": "Exceed Cost",
+        "dataSource": "resourceCost",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "66px",
+        "position": [701, 900],
+        "alignment": "center",
+        "conditionals": [["CHARACTER", "NON_EXCEED"]]
+    },
+    {
+        "__name": "Can-Crit Icon",
+        "type": "Image",
+        "imagePath": "/templates/SeventhCross/images/CanCritIcon.png",
+        "position": [627, 733],
+        "conditionals": [["CHARACTER", "MECHANIC_CRITICAL"]]
+    },
+    {
+        "__name": "Boost Force Cost",
+        "dataSource": "boostForceCost",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "72px",
+        "position": [70, 959],
+        "alignment": "center",
+        "conditionals": [["SPECIAL", "NON_TRANSFORM"], ["ULTRA", "NON_TRANSFORM"]]
+    },
+    {
+        "__name": "Force Cost",
+        "dataSource": "resourceCost",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "72px",
+        "position": [41, 83],
+        "alignment": "center",
+        "conditionals": [["HAS_FORCE_COST", "SPECIAL"]]
+    },
+    {
+        "__name": "Gauge Cost",
+        "dataSource": "resourceCost",
+        "type": "Text",
+        "fontPath": "MKXTitle",
+        "fontSize": "68px",
+        "position": [44, 80],
+        "alignment": "center",
+        "conditionals": [["ULTRA"]]
+    },
+    {
+        "__name": "Deck Credit",
+        "dataSource": "credit",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "17px",
+        "position": [130, 628],
+        "alignment": "left",
+        "color": "#cccccc",
+        "conditionals": [["SPECIAL"], ["ULTRA"]]
+    },
+    {
+        "__name": "Character/Extra Credit (Non-Exceed)",
+        "dataSource": "credit",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "17px",
+        "position": [86, 809],
+        "alignment": "left",
+        "color": "#cccccc",
+        "conditionals": [["CHARACTER", "NON_EXCEED"], ["EXTRA", "NON_EXCEED"]]
+    },
+    {
+        "__name": "Character/Extra Credit (Exceed)",
+        "dataSource": "credit",
+        "type": "Text",
+        "fontPath": "AlgrySansMed",
+        "fontSize": "17px",
+        "position": [86, 809],
+        "alignment": "left",
+        "color": "#ffffff",
+        "conditionals": [["CHARACTER", "EXCEED"], ["EXTRA", "EXCEED"]]
+    }
+]

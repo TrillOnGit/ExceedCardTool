@@ -9,9 +9,11 @@ import {
   CardPreview,
   drawCard,
   loadImage,
-  useCardImageData,
+  useJsonData,
+  // useCardImageData,
 } from "./CardPreview";
 import { Sidebar } from "./Sidebar";
+// import { Component } from "./Playground";
 
 function App() {
   const [cards, setCards] = useState<Card[]>([defaultCharacterCard]);
@@ -19,18 +21,19 @@ function App() {
     defaultCharacterCard.id,
   );
   const curCard = cards.find((c) => c.id == curCardId);
+  const jsonData = useJsonData("/templates/CCJ/template.json");
 
-  const cardImageData = useCardImageData();
+  //  const cardImageData = useCardImageData();
 
   const updateCurCard = (newCard: Card) => {
-    setCards((oldCard) =>
-      oldCard.map((c) => (c.id == curCardId ? newCard : c)),
+    setCards((oldCards) =>
+      oldCards.map((c) => (c.id == curCardId ? newCard : c)),
     );
   };
 
   const addCard = () => {
     const newCard = addNewCard();
-    setCards((oldCard) => [...oldCard, newCard]);
+    setCards((oldCards) => [...oldCards, newCard]);
     setCurCardId(newCard.id);
   };
 
@@ -127,7 +130,7 @@ function App() {
       );
       ctx.save();
       ctx.translate(xOffset, yOffset);
-      drawCard(ctx, card, userImage, userIcon, cardImageData);
+      drawCard(ctx, card, jsonData, undefined, userImage, userIcon);
       ctx.restore();
 
       console.log("Card Attempted to be generated to canvas");
@@ -156,6 +159,9 @@ function App() {
   return (
     <>
       <div className="flex min-h-screen gap-2">
+        {/* <div>
+          <Component />
+        </div> */}
         <Sidebar
           className="self-stretch"
           cards={cards}
