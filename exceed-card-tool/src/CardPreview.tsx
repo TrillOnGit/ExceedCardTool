@@ -351,7 +351,7 @@ const drawTextFromJson = (
   json: TextJson,
   ctx: CardDrawingContext,
   card: Card,
-  images: Record<string, HTMLImageElement>,
+  images: Record<string, HTMLImageElement> | undefined,
 ) => {
   if (!checkJsonConditions(json.conditionals, card)) return;
   const text = getSourceText(card, json.dataSource);
@@ -366,7 +366,7 @@ const drawTextFromJson = (
       ? `[f]${flavorText}[/f]\n${rawText.trim()}`
       : rawText;
     const icons: TextIcons = {
-      critIcon: images[""] ?? null,
+      critIcon: images ? (images[""] ?? null) : null,
     };
 
     ctx.letterSpacing = "0px";
@@ -389,7 +389,7 @@ const drawTextFromJson = (
   ctx.font = fontString;
   ctx.textAlign = (json.alignment ?? "left") as CanvasTextAlign;
   ctx.fillStyle = color;
-  ctx.fillText(getSourceText(card, json.dataSource), x, y);
+  ctx.fillText(getSourceText(card, json.dataSource), position[0], position[1]);
 
   //const font = useFont(json.fontPath);
 };
